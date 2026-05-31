@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DFW Disposable — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+:root{
+  --red:#c8181e;--red-dark:#a01216;--red-light:#fff0f0;
+  --dark:#1a1a1a;--dark2:#242424;--dark3:#2e2e2e;
+  --sidebar:#151515;--sidebar-w:240px;
+  --gray:#888;--gray2:#bbb;--gray3:#e8e4e0;
+  --bg:#f5f4f1;--white:#fff;--border:#e4e0da;
+  --green:#1a8a4a;--green-bg:#e8f5ee;
+  --orange:#d97706;--orange-bg:#fff7e6;
+  --blue:#1d6fa4;--blue-bg:#e8f3fb;
+  --font:'Barlow',sans-serif;
+  --font-cond:'Barlow Condensed',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--dark);}
+a{text-decoration:none;color:inherit;}
+.hidden{display:none!important;}
+input,select,textarea,button{font-family:var(--font);}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0f0f0f 0%,#2a0608 60%,#1a0000 100%);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:40px 36px;width:100%;max-width:400px;backdrop-filter:blur(12px);}
+.login-logo{display:flex;align-items:stretch;margin-bottom:28px;justify-content:center;}
+.login-logo .lb{background:var(--red);color:#fff;font-family:var(--font-cond);font-size:18px;font-weight:700;padding:9px 14px;letter-spacing:2px;border-radius:8px 0 0 8px;}
+.login-logo .lw{background:rgba(255,255,255,.1);color:#fff;padding:9px 14px;border-radius:0 8px 8px 0;display:flex;flex-direction:column;justify-content:center;}
+.login-logo .lw .t1{font-family:var(--font-cond);font-size:14px;font-weight:600;letter-spacing:3px;}
+.login-logo .lw .t2{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.4);margin-top:2px;}
+.login-title{color:#fff;font-family:var(--font-cond);font-size:22px;font-weight:700;text-align:center;margin-bottom:4px;}
+.login-sub{color:rgba(255,255,255,.4);font-size:12px;text-align:center;margin-bottom:24px;}
+.login-field{margin-bottom:14px;}
+.login-field label{display:block;color:rgba(255,255,255,.6);font-size:11px;font-weight:600;letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase;}
+.login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;outline:none;transition:border .2s;}
+.login-field input:focus{border-color:var(--red);}
+.login-field input::placeholder{color:rgba(255,255,255,.25);}
+.login-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;letter-spacing:.5px;transition:background .15s;}
+.login-btn:hover{background:var(--red-dark);}
+.login-hint{color:rgba(255,255,255,.25);font-size:11px;text-align:center;margin-top:14px;}
+.login-err{background:rgba(200,24,30,.15);border:1px solid rgba(200,24,30,.3);color:#ff9999;font-size:12px;padding:10px 14px;border-radius:7px;margin-bottom:12px;display:none;}
+
+/* ── LAYOUT ── */
+#admin-app{display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.sb-logo{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px;}
+.sb-logo .badge{background:var(--red);color:#fff;font-family:var(--font-cond);font-size:13px;font-weight:700;padding:6px 10px;border-radius:6px;letter-spacing:1px;}
+.sb-logo .words{color:#fff;}
+.sb-logo .words .n{font-family:var(--font-cond);font-size:14px;font-weight:600;letter-spacing:2px;line-height:1;}
+.sb-logo .words .s{font-size:9px;color:#555;letter-spacing:1px;margin-top:2px;}
+.sb-admin-badge{margin:12px 16px;background:rgba(200,24,30,.15);border:1px solid rgba(200,24,30,.25);border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:7px;}
+.sb-admin-badge i{font-size:14px;color:var(--red);}
+.sb-admin-badge span{font-size:11px;color:#ff9999;font-weight:600;letter-spacing:.5px;}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0;}
+.sb-section{color:#444;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:14px 20px 6px;}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 20px;color:#888;font-size:13px;cursor:pointer;transition:all .15s;border-left:2px solid transparent;}
+.sb-link:hover{background:rgba(255,255,255,.04);color:#ccc;}
+.sb-link.active{background:rgba(200,24,30,.1);color:#ff6666;border-left-color:var(--red);}
+.sb-link i{font-size:16px;flex-shrink:0;}
+.sb-link .badge-count{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 7px;}
+.sb-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.06);}
+.sb-user{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.sb-user-avatar{width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0;}
+.sb-user-info .name{color:#ccc;font-size:12px;font-weight:600;}
+.sb-user-info .role{color:#555;font-size:10px;}
+.logout-btn{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#888;border-radius:7px;padding:8px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
+.logout-btn:hover{background:rgba(200,24,30,.15);color:#ff6666;border-color:rgba(200,24,30,.3);}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar-admin{background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:50;}
+.topbar-title{font-family:var(--font-cond);font-size:18px;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:8px;}
+.topbar-title i{color:var(--red);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.tb-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--gray);transition:all .15s;}
+.tb-btn:hover{border-color:var(--red);color:var(--red);}
+.tb-btn-red{background:var(--red);color:#fff;border-color:var(--red);}
+.tb-btn-red:hover{background:var(--red-dark);color:#fff;}
+.tb-btn i{font-size:15px;}
+
+/* ── CONTENT ── */
+.content{padding:24px 28px;flex:1;}
+
+/* ── STATS CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 20px;display:flex;align-items:flex-start;justify-content:space-between;}
+.stat-info .label{font-size:11px;color:var(--gray);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+.stat-info .value{font-family:var(--font-cond);font-size:28px;font-weight:700;color:var(--dark);line-height:1;}
+.stat-info .change{font-size:11px;margin-top:5px;}
+.stat-info .change.up{color:var(--green);}
+.stat-info .change.neutral{color:var(--gray);}
+.stat-ico{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-ico i{font-size:20px;}
+.ico-red{background:var(--red-light);}.ico-red i{color:var(--red);}
+.ico-green{background:var(--green-bg);}.ico-green i{color:var(--green);}
+.ico-blue{background:var(--blue-bg);}.ico-blue i{color:var(--blue);}
+.ico-orange{background:var(--orange-bg);}.ico-orange i{color:var(--orange);}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.sec-title{font-family:var(--font-cond);font-size:17px;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:7px;}
+.sec-title i{color:var(--red);}
+.sec-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;}
+.table-toolbar{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 12px;flex:1;max-width:300px;}
+.search-box i{font-size:15px;color:var(--gray);}
+.search-box input{border:none;background:transparent;outline:none;font-size:13px;color:var(--dark);width:100%;}
+.filter-select{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--dark);outline:none;cursor:pointer;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg);}
+th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+td{padding:11px 16px;font-size:13px;color:var(--dark);border-bottom:1px solid #f0ede8;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafaf8;}
+.sku-badge{font-size:10px;color:var(--gray);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-weight:600;}
+.price-tag{font-weight:700;color:var(--red);}
+.status-active{background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.status-inactive{background:#f5f5f5;color:#999;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.status-promo{background:var(--orange-bg);color:var(--orange);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.action-btns{display:flex;gap:6px;}
+.action-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;gap:4px;transition:all .15s;}
+.ab-edit{background:var(--blue-bg);color:var(--blue);}
+.ab-edit:hover{background:#d0e8f7;}
+.ab-del{background:#fce8e8;color:#c0392b;}
+.ab-del:hover{background:#f5d0d0;}
+.ab-toggle{background:var(--green-bg);color:var(--green);}
+.ab-toggle:hover{background:#d0edda;}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--white);border-radius:12px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:10;}
+.modal-title{font-family:var(--font-cond);font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.modal-title i{color:var(--red);}
+.modal-close{width:30px;height:30px;border-radius:6px;border:none;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gray);}
+.modal-close:hover{background:var(--red-light);color:var(--red);}
+.modal-body{padding:22px;}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* ── FORM ELEMENTS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:12px;font-weight:600;color:var(--dark);}
+.form-group input,.form-group select,.form-group textarea{border:1px solid var(--border);border-radius:7px;padding:9px 12px;font-size:13px;background:var(--bg);color:var(--dark);outline:none;transition:border .15s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--red);background:var(--white);}
+.form-group textarea{resize:vertical;min-height:80px;}
+.input-prefix{display:flex;align-items:center;border:1px solid var(--border);border-radius:7px;overflow:hidden;background:var(--bg);}
+.input-prefix span{background:#f0ede8;border-right:1px solid var(--border);padding:9px 12px;font-size:13px;color:var(--gray);font-weight:600;}
+.input-prefix input{border:none;padding:9px 12px;font-size:13px;background:transparent;color:var(--dark);outline:none;flex:1;}
+.form-hint{font-size:11px;color:var(--gray);margin-top:3px;}
+
+/* ── PROMOTIONS ── */
+.promo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px;}
+.promo-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.promo-card-top{padding:14px 16px;display:flex;align-items:flex-start;gap:12px;}
+.promo-ico{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.promo-ico.type-pct{background:var(--green-bg);}.promo-ico.type-pct i{color:var(--green);}
+.promo-ico.type-flat{background:var(--blue-bg);}.promo-ico.type-flat i{color:var(--blue);}
+.promo-ico.type-free{background:var(--orange-bg);}.promo-ico.type-free i{color:var(--orange);}
+.promo-ico i{font-size:20px;}
+.promo-info .promo-name{font-size:14px;font-weight:600;color:var(--dark);}
+.promo-info .promo-code{font-size:11px;color:var(--gray);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 7px;display:inline-block;margin-top:3px;font-weight:600;letter-spacing:1px;}
+.promo-value{margin-left:auto;font-family:var(--font-cond);font-size:22px;font-weight:700;color:var(--red);}
+.promo-card-bot{padding:10px 16px;border-top:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between;}
+.promo-meta{font-size:11px;color:var(--gray);}
+.promo-meta b{color:var(--dark);}
+.promo-actions{display:flex;gap:6px;}
+
+/* ── CATEGORIES GRID ── */
+.cat-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px;}
+.cat-admin-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;}
+.cat-admin-card:hover{border-color:var(--red);}
+.cat-admin-ico{width:38px;height:38px;background:var(--red-light);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cat-admin-ico i{font-size:18px;color:var(--red);}
+.cat-admin-info .cat-name{font-size:13px;font-weight:600;color:var(--dark);}
+.cat-admin-info .cat-count{font-size:11px;color:var(--gray);margin-top:2px;}
+.cat-manage-btn{margin-left:auto;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--gray);cursor:pointer;white-space:nowrap;}
+.cat-manage-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* ── ACTIVITY LOG ── */
+.log-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f0ede8;}
+.log-item:last-child{border-bottom:none;}
+.log-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.log-dot.green{background:var(--green);}
+.log-dot.red{background:var(--red);}
+.log-dot.blue{background:var(--blue);}
+.log-dot.orange{background:var(--orange);}
+.log-text{font-size:12.5px;color:var(--dark);line-height:1.5;}
+.log-time{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:8px;z-index:9999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast i{font-size:16px;}
+.toast.success i{color:#4caf50;}
+.toast.error i{color:#f44336;}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--gray);}
+.empty-state i{font-size:40px;margin-bottom:10px;opacity:.4;}
+.empty-state p{font-size:13px;}
+
+/* ── TOGGLE SWITCH ── */
+.toggle-wrap{display:flex;align-items:center;gap:8px;}
+.toggle{position:relative;width:38px;height:22px;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:22px;cursor:pointer;transition:.2s;}
+.toggle-slider:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s;}
+.toggle input:checked + .toggle-slider{background:var(--green);}
+.toggle input:checked + .toggle-slider:before{transform:translateX(16px);}
+.toggle-label{font-size:12px;color:var(--gray);}
+
+/* ── SLIDER EDITORS ── */
+.slide-editor-grid{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start;}
+.slide-list{display:flex;flex-direction:column;gap:8px;}
+.slide-card{background:var(--white);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .15s;}
+.slide-card.active-card{border-color:var(--red);}
+.slide-card-thumb{height:70px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.slide-card-thumb img{width:100%;height:100%;object-fit:cover;}
+.slide-card-thumb .thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;}
+.slide-card-info{padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.slide-card-title{font-size:12px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+.slide-card-actions{display:flex;gap:4px;flex-shrink:0;}
+.sca-btn{background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:5px;font-size:13px;color:var(--gray);transition:all .15s;}
+.sca-btn:hover{background:var(--bg);}
+.sca-btn.del:hover{color:#e53935;}
+.slide-editor-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:22px;}
+.slide-preview-box{border-radius:10px;overflow:hidden;margin-bottom:16px;min-height:160px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 24px;position:relative;}
+.slide-preview-box .sp-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:#fff;line-height:1.2;}
+.slide-preview-box .sp-sub{font-size:12px;color:#ccc;margin-top:6px;line-height:1.5;}
+.slide-preview-box .sp-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;margin-bottom:8px;letter-spacing:.5px;}
+.slide-preview-box .sp-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+.slide-preview-box .sp-tag{font-size:10px;padding:3px 9px;border-radius:14px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);}
+.slide-preview-box .sp-img{width:90px;height:90px;border-radius:8px;object-fit:cover;opacity:.7;flex-shrink:0;}
+.slide-preview-box .sp-img-placeholder{width:90px;height:90px;border-radius:8px;background:rgba(255,255,255,.08);border:2px dashed rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.slide-preview-box .sp-img-placeholder i{font-size:30px;color:rgba(255,255,255,.3);}
+.img-upload-zone{border:2px dashed var(--border);border-radius:9px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);margin-bottom:14px;}
+.img-upload-zone:hover,.img-upload-zone.drag-over{border-color:var(--red);background:#fff5f5;}
+.img-upload-zone i{font-size:24px;color:var(--gray);display:block;margin-bottom:6px;}
+.img-upload-zone .iuz-title{font-size:12px;font-weight:600;color:var(--dark);}
+.img-upload-zone .iuz-sub{font-size:10px;color:var(--gray);margin-top:3px;}
+.img-preview-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.img-preview-item{position:relative;width:64px;height:64px;border-radius:7px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:border-color .15s;}
+.img-preview-item:hover{border-color:var(--red);}
+.img-preview-item.selected{border-color:var(--red);}
+.img-preview-item img{width:100%;height:100%;object-fit:cover;}
+.img-preview-item .ipi-del{position:absolute;top:2px;right:2px;background:rgba(200,24,30,.85);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .15s;}
+.img-preview-item:hover .ipi-del{opacity:1;}
+.img-preview-item .ipi-add{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.img-preview-item .ipi-add i{font-size:20px;color:var(--gray);}
+.color-swatch-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px;}
+.color-swatch{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+.color-swatch.selected{border-color:var(--dark);transform:scale(1.15);}
+.reorder-hint{font-size:11px;color:var(--gray);display:flex;align-items:center;gap:5px;margin-bottom:10px;}
+.add-slide-btn{width:100%;border:2px dashed var(--border);border-radius:9px;padding:12px;font-size:13px;font-weight:600;color:var(--gray);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s;margin-top:8px;}
+.add-slide-btn:hover{border-color:var(--red);color:var(--red);background:#fff5f5;}
+
+</style>
+</head>
+<body>
+
+<!-- ════════ LOGIN SCREEN ════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="lb">DFW</div>
+      <div class="lw"><div class="t1">DISPOSABLE</div><div class="t2">ADMIN PANEL</div></div>
+    </div>
+    <div class="login-title">Admin Access</div>
+    <div class="login-sub">Restricted — authorized personnel only</div>
+    <div class="login-err" id="login-err"><i class="ti ti-alert-circle"></i> Invalid credentials. Please try again.</div>
+    <div class="login-field"><label>Username</label><input type="text" id="admin-user" placeholder="admin" autocomplete="off"/></div>
+    <div class="login-field"><label>Password</label><input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="login-btn" onclick="doLogin()"><i class="ti ti-lock-open" style="margin-right:6px;"></i>Sign In to Admin</button>
+    <div class="login-hint">Default: admin / admin123</div>
+  </div>
+</div>
+
+<!-- ════════ ADMIN APP ════════ -->
+<div id="admin-app" class="hidden">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="badge">DFW</div>
+      <div class="words"><div class="n">DISPOSABLE</div><div class="s">PACKAGING & SUPPLY</div></div>
+    </div>
+    <div class="sb-admin-badge"><i class="ti ti-shield-check"></i><span>ADMIN PANEL</span></div>
+    <div class="sb-nav">
+      <div class="sb-section">Overview</div>
+      <div class="sb-link active" onclick="showSection('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+
+      <div class="sb-section">Catalog</div>
+      <div class="sb-link" onclick="showSection('products')"><i class="ti ti-package"></i>All Products <span class="badge-count" id="sb-prod-count">96</span></div>
+      <div class="sb-link" onclick="showSection('categories')"><i class="ti ti-category"></i>Categories</div>
+      <div class="sb-link" onclick="showSection('pricing')"><i class="ti ti-tag"></i>Pricing Manager</div>
+
+      <div class="sb-section">Marketing</div>
+      <div class="sb-link" onclick="showSection('promotions')"><i class="ti ti-rosette-discount"></i>Promotions <span class="badge-count" id="sb-promo-count">3</span></div>
+      <div class="sb-link" onclick="showSection('banner')"><i class="ti ti-speakerphone"></i>Info Banner</div>
+      <div class="sb-link" onclick="showSection('hero-editor')"><i class="ti ti-layout-board"></i>Hero Slider</div>
+      <div class="sb-link" onclick="showSection('promo-slider-editor')"><i class="ti ti-carousel-horizontal"></i>Promo Slider</div>
+
+      <div class="sb-section">Settings</div>
+      <div class="sb-link" onclick="showSection('appearance')"><i class="ti ti-brush"></i>Site Appearance</div>
+      <div class="sb-link" onclick="showSection('settings')"><i class="ti ti-settings"></i>Store Settings</div>
+      <div class="sb-link" onclick="showSection('admins')"><i class="ti ti-users"></i>Admin Users</div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-user-avatar">A</div>
+        <div class="sb-user-info"><div class="name">Admin User</div><div class="role">Super Administrator</div></div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i>Sign Out</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <!-- TOP BAR -->
+    <div class="topbar-admin">
+      <div class="topbar-title" id="page-title"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+      <div class="topbar-right">
+        <div class="tb-btn" onclick="window.open('dfw-disposable-website.html','_blank')"><i class="ti ti-external-link"></i>View Site</div>
+        <div class="tb-btn tb-btn-red" id="topbar-add-btn" onclick="openAddModal()" style="display:none;"><i class="ti ti-plus"></i><span id="topbar-add-label">Add New</span></div>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div id="sec-dashboard">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-info">
+              <div class="label">Total Products</div>
+              <div class="value" id="dash-total-prod">96</div>
+              <div class="change neutral">Across 16 categories</div>
+            </div>
+            <div class="stat-ico ico-red"><i class="ti ti-package"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <div class="label">Active Promotions</div>
+              <div class="value" id="dash-total-promo">3</div>
+              <div class="change up"><i class="ti ti-arrow-up" style="font-size:10px;"></i> 1 added this week</div>
+            </div>
+            <div class="stat-ico ico-green"><i class="ti ti-rosette-discount"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <div class="label">Categories</div>
+              <div class="value">16</div>
+              <div class="change neutral">All active</div>
+            </div>
+            <div class="stat-ico ico-blue"><i class="ti ti-category"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <div class="label">Banner Status</div>
+              <div class="value" style="font-size:16px;margin-top:4px;">LIVE</div>
+              <div class="change up">Promo banner active</div>
+            </div>
+            <div class="stat-ico ico-orange"><i class="ti ti-speakerphone"></i></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;">
+          <!-- Recent Activity -->
+          <div class="table-wrap">
+            <div class="table-toolbar"><span style="font-size:14px;font-weight:600;color:var(--dark);">Recent Activity</span></div>
+            <div style="padding:14px 18px;" id="activity-log">
+              <div class="log-item"><div class="log-dot green"></div><div><div class="log-text">Product <b>8oz Hot Cup</b> price updated to $24.99/cs</div><div class="log-time">2 minutes ago</div></div></div>
+              <div class="log-item"><div class="log-dot blue"></div><div><div class="log-text">New promotion <b>SUMMER10</b> created (10% off)</div><div class="log-time">1 hour ago</div></div></div>
+              <div class="log-item"><div class="log-dot red"></div><div><div class="log-text">Product <b>Foam Plate 6"</b> marked as inactive</div><div class="log-time">3 hours ago</div></div></div>
+              <div class="log-item"><div class="log-dot orange"></div><div><div class="log-text">Site banner updated with new delivery message</div><div class="log-time">Yesterday</div></div></div>
+              <div class="log-item"><div class="log-dot green"></div><div><div class="log-text">New product <b>Bamboo Fork 7"</b> added to Earth Friendly</div><div class="log-time">2 days ago</div></div></div>
+              <div class="log-item"><div class="log-dot blue"></div><div><div class="log-text">Bulk price update applied to <b>Cutlery</b> category</div><div class="log-time">3 days ago</div></div></div>
+            </div>
+          </div>
+          <!-- Quick Actions -->
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;">
+              <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--dark);">Quick Actions</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="tb-btn" style="justify-content:flex-start;width:100%;" onclick="showSection('products');openAddModal()"><i class="ti ti-plus"></i>Add New Product</button>
+                <button class="tb-btn" style="justify-content:flex-start;width:100%;" onclick="showSection('promotions');openAddPromo()"><i class="ti ti-rosette-discount"></i>Create Promotion</button>
+                <button class="tb-btn" style="justify-content:flex-start;width:100%;" onclick="showSection('pricing')"><i class="ti ti-tag"></i>Update Pricing</button>
+                <button class="tb-btn" style="justify-content:flex-start;width:100%;" onclick="showSection('banner')"><i class="ti ti-speakerphone"></i>Edit Info Banner</button>
+                <button class="tb-btn" style="justify-content:flex-start;width:100%;" onclick="showSection('hero-editor')"><i class="ti ti-layout-board"></i>Edit Hero Slider</button>
+                <button class="tb-btn" style="justify-content:flex-start;width:100%;" onclick="showSection('promo-slider-editor')"><i class="ti ti-carousel-horizontal"></i>Edit Promo Slider</button>
+              </div>
+            </div>
+            <div style="background:linear-gradient(135deg,var(--dark),#3a0a0c);border-radius:10px;padding:16px;color:#fff;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Site Status</div>
+              <div style="font-size:11px;color:#aaa;margin-bottom:10px;">DFW Disposable is live</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#ccc;margin-bottom:6px;"><div style="width:8px;height:8px;background:#4caf50;border-radius:50%;"></div>Website online</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#ccc;margin-bottom:6px;"><div style="width:8px;height:8px;background:#4caf50;border-radius:50%;"></div>Promo banner active</div>
+              <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#ccc;"><div style="width:8px;height:8px;background:#4caf50;border-radius:50%;"></div>96 products listed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PRODUCTS ══ -->
+      <div id="sec-products" class="hidden">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-package"></i>All Products</div>
+          <div class="sec-actions">
+            <button class="tb-btn tb-btn-red" onclick="openAddModal()"><i class="ti ti-plus"></i>Add Product</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <div class="search-box"><i class="ti ti-search"></i><input type="text" id="prod-search" placeholder="Search products, SKU…" oninput="filterProducts()"/></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <select class="filter-select" id="prod-cat-filter" onchange="filterProducts()">
+                <option value="">All Categories</option>
+                <option>Earth Friendly</option><option>Cutlery</option><option>Cups & Lids</option>
+                <option>Hinged Lid</option><option>Plates, Bowls & Trays</option><option>Napkins</option>
+                <option>Bags</option><option>Food Wraps</option><option>Disposable Apparel</option>
+                <option>Janitorial</option><option>Other Products</option><option>Boxes, Circles & Pads</option>
+                <option>Black Containers</option><option>Aluminum Foil Pans</option>
+                <option>Catering Trays</option><option>Containers</option>
+              </select>
+              <select class="filter-select" id="prod-status-filter" onchange="filterProducts()">
+                <option value="">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <table id="prod-table">
+            <thead><tr>
+              <th>Product Name</th><th>SKU</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="prod-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ CATEGORIES ══ -->
+      <div id="sec-categories" class="hidden">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-category"></i>Product Categories</div>
+          <div class="sec-actions">
+            <button class="tb-btn tb-btn-red" onclick="openAddCatModal()"><i class="ti ti-plus"></i>Add Category</button>
+          </div>
+        </div>
+        <div class="cat-admin-grid" id="cat-admin-grid"></div>
+      </div>
+
+      <!-- ══ PRICING ══ -->
+      <div id="sec-pricing" class="hidden">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-tag"></i>Pricing Manager</div>
+          <div class="sec-actions">
+            <button class="tb-btn" onclick="applyBulkPrice()"><i class="ti ti-percentage"></i>Bulk % Adjust</button>
+            <button class="tb-btn tb-btn-red" onclick="savePricing()"><i class="ti ti-device-floppy"></i>Save All Changes</button>
+          </div>
+        </div>
+        <div style="background:var(--orange-bg);border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;">
+          <i class="ti ti-info-circle" style="color:var(--orange);font-size:18px;flex-shrink:0;"></i>
+          <span style="font-size:13px;color:#92400e;">Edit prices inline below. Click <b>Save All Changes</b> when done to apply updates to the live site.</span>
+        </div>
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <div class="search-box"><i class="ti ti-search"></i><input type="text" id="price-search" placeholder="Search products…" oninput="filterPricing()"/></div>
+            <select class="filter-select" id="price-cat-filter" onchange="filterPricing()">
+              <option value="">All Categories</option>
+              <option>Earth Friendly</option><option>Cutlery</option><option>Cups & Lids</option>
+              <option>Hinged Lid</option><option>Plates, Bowls & Trays</option><option>Napkins</option>
+              <option>Bags</option><option>Food Wraps</option><option>Disposable Apparel</option>
+              <option>Janitorial</option><option>Other Products</option><option>Boxes, Circles & Pads</option>
+              <option>Black Containers</option><option>Aluminum Foil Pans</option>
+              <option>Catering Trays</option><option>Containers</option>
+            </select>
+          </div>
+          <table>
+            <thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Current Price</th><th>New Price</th><th>Unit</th></tr></thead>
+            <tbody id="price-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PROMOTIONS ══ -->
+      <div id="sec-promotions" class="hidden">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-rosette-discount"></i>Promotions & Coupons</div>
+          <div class="sec-actions">
+            <button class="tb-btn tb-btn-red" onclick="openAddPromo()"><i class="ti ti-plus"></i>New Promotion</button>
+          </div>
+        </div>
+        <div class="promo-grid" id="promo-grid"></div>
+      </div>
+
+      <!-- ══ BANNER ══ -->
+      <div id="sec-banner" class="hidden">
+        <div class="sec-hdr"><div class="sec-title"><i class="ti ti-speakerphone"></i>Site Banner Manager</div></div>
+        <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;">
+          <div class="table-wrap" style="padding:22px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:var(--dark);">Banner Configuration</div>
+            <div class="form-group"><label>Banner Message 1</label><input type="text" id="ban1" value="No minimum for will-call orders"/></div>
+            <div class="form-group"><label>Banner Message 2</label><input type="text" id="ban2" value="Free delivery in the DFW area with minimum order of $150"/></div>
+            <div class="form-group"><label>Banner Message 3</label><input type="text" id="ban3" value="Serving the DFW Metroplex"/></div>
+            <div class="form-group"><label>Highlight Color</label>
+              <select id="ban-color">
+                <option value="red">Red (Default)</option><option value="dark">Dark/Black</option><option value="green">Green</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Banner Enabled</label>
+              <div class="toggle-wrap">
+                <label class="toggle"><input type="checkbox" id="ban-enabled" checked/><span class="toggle-slider"></span></label>
+                <span class="toggle-label">Banner is currently visible on site</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:4px;">
+              <button class="tb-btn tb-btn-red" onclick="saveBanner()"><i class="ti ti-device-floppy"></i>Save Banner</button>
+              <button class="tb-btn" onclick="previewBanner()"><i class="ti ti-eye"></i>Preview</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="table-wrap" style="padding:18px;">
+              <div style="font-size:14px;font-weight:600;margin-bottom:12px;">Live Preview</div>
+              <div id="banner-preview" style="background:#1c1c1c;border-radius:7px;padding:9px 14px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center;">
+                <span style="color:#ccc;font-size:11px;display:flex;align-items:center;gap:5px;"><span style="color:var(--red);font-size:14px;">●</span> <b style="color:#fff;">No minimum</b> for will-call</span>
+                <span style="color:#ccc;font-size:11px;display:flex;align-items:center;gap:5px;"><span style="color:var(--red);font-size:14px;">●</span> <b style="color:#fff;">Free delivery</b> $150+</span>
+              </div>
+            </div>
+            <div class="table-wrap" style="padding:18px;">
+              <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Tips</div>
+              <div style="font-size:12px;color:var(--gray);line-height:1.7;">
+                • Keep messages under 50 characters<br/>
+                • Use bold words for key offers<br/>
+                • The banner appears below the nav bar<br/>
+                • Disable banner during maintenance
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SETTINGS ══ -->
+      <div id="sec-settings" class="hidden">
+        <div class="sec-hdr"><div class="sec-title"><i class="ti ti-settings"></i>Store Settings</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="table-wrap" style="padding:22px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Business Information</div>
+            <div class="form-group"><label>Business Name</label><input type="text" id="s-bizname" value="DFW Disposable Packaging & Supply Co."/></div>
+            <div class="form-group"><label>Phone Number</label><input type="text" id="s-phone" value="(469) 927-9927"/></div>
+            <div class="form-group"><label>Email</label><input type="email" id="s-email" value="info@dfwdisposable.com"/></div>
+            <div class="form-group"><label>Address / Location</label><input type="text" id="s-address" value="DFW Metroplex, Texas"/></div>
+            <div class="form-group"><label>Business Hours (Mon–Fri)</label><input type="text" id="s-hrs1" value="8:00 AM – 5:00 PM"/></div>
+            <div class="form-group"><label>Business Hours (Sat)</label><input type="text" id="s-hrs2" value="8:00 AM – 2:00 PM"/></div>
+            <button class="tb-btn tb-btn-red" onclick="saveBusinessInfo()"><i class="ti ti-device-floppy"></i>Save Info</button>
+          </div>
+          <div class="table-wrap" style="padding:22px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Delivery Settings</div>
+            <div class="form-group"><label>Free Delivery Minimum ($)</label>
+              <div class="input-prefix"><span>$</span><input type="number" id="s-delmin" value="150"/></div>
+            </div>
+            <div class="form-group"><label>Will-Call Minimum ($)</label>
+              <div class="input-prefix"><span>$</span><input type="number" id="s-wcmin" value="0"/></div>
+            </div>
+            <div class="form-group"><label>Delivery Days</label>
+              <select id="s-deldays"><option>Monday – Friday</option><option>Monday – Saturday</option><option>All Week</option></select>
+            </div>
+            <div class="form-group"><label>Delivery Cutoff Time</label><input type="time" id="s-delcut" value="12:00"/></div>
+            <div class="form-group">
+              <label>Delivery Active</label>
+              <div class="toggle-wrap">
+                <label class="toggle"><input type="checkbox" id="s-delactive" checked/><span class="toggle-slider"></span></label>
+                <span class="toggle-label">Deliveries currently available</span>
+              </div>
+            </div>
+            <button class="tb-btn tb-btn-red" onclick="saveDeliverySettings()"><i class="ti ti-device-floppy"></i>Save Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SITE APPEARANCE ══ -->
+      <div id="sec-appearance" class="hidden">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-brush"></i>Site Appearance</div>
+          <div class="sec-actions">
+            <button class="tb-btn" onclick="previewAppearance()"><i class="ti ti-eye"></i>Preview Changes</button>
+            <button class="tb-btn tb-btn-red" onclick="saveAppearance()"><i class="ti ti-device-floppy"></i>Save & Apply</button>
+          </div>
+        </div>
+
+        <!-- LIVE PREVIEW -->
+        <div class="table-wrap" style="padding:20px;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px;"><i class="ti ti-eye" style="color:var(--red);"></i>Live Header Preview</div>
+          <div id="header-preview-box" style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+            <!-- Topbar preview -->
+            <div id="prev-topbar" style="background:#1a1a1a;padding:5px 20px;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;gap:10px;">
+                <span id="prev-tb-home" style="color:#777;font-size:11px;">Home</span>
+                <span style="color:#555;font-size:11px;">|</span>
+                <span style="color:#777;font-size:11px;">Sign in</span>
+                <span style="color:#555;font-size:11px;">|</span>
+                <span style="color:#777;font-size:11px;">Register</span>
+              </div>
+              <div style="color:#777;font-size:11px;">🛒 Cart</div>
+            </div>
+            <!-- Header preview -->
+            <div id="prev-header" style="background:#c8181e;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:stretch;gap:0;">
+                <div id="prev-logo-badge" style="background:#fff;color:#c8181e;font-size:15px;font-weight:700;padding:8px 13px;border-radius:6px 0 0 6px;letter-spacing:2px;">DFW</div>
+                <div id="prev-logo-words" style="background:#1a1a1a;padding:8px 14px;border-radius:0 6px 6px 0;display:flex;flex-direction:column;justify-content:center;">
+                  <div id="prev-logo-l1" style="color:#fff;font-size:13px;font-weight:600;letter-spacing:3px;">DISPOSABLE</div>
+                  <div id="prev-logo-l2" style="color:#888;font-size:9px;letter-spacing:1.5px;margin-top:2px;">PACKAGING & SUPPLY CO.</div>
+                </div>
+              </div>
+              <div id="prev-phone" style="color:#fff;font-size:13px;font-weight:600;">(469) 927-9927</div>
+            </div>
+            <!-- Nav preview -->
+            <div id="prev-nav" style="background:#c8181e;padding:0 20px;display:flex;gap:0;border-top:1px solid rgba(255,255,255,.15);">
+              <span id="prev-nav-home" style="color:rgba(255,255,255,.85);font-size:11px;padding:9px 12px;border-right:1px solid rgba(255,255,255,.12);">🏠 Home</span>
+              <span id="prev-nav-custom" style="color:rgba(255,255,255,.85);font-size:11px;padding:9px 12px;border-right:1px solid rgba(255,255,255,.12);">Custom Products</span>
+              <span id="prev-nav-delivery" style="color:rgba(255,255,255,.85);font-size:11px;padding:9px 12px;border-right:1px solid rgba(255,255,255,.12);">Delivery</span>
+              <span id="prev-nav-contact" style="color:rgba(255,255,255,.85);font-size:11px;padding:9px 12px;border-right:1px solid rgba(255,255,255,.12);">Contact Us</span>
+              <span id="prev-nav-hours" style="color:rgba(255,255,255,.85);font-size:11px;padding:9px 12px;border-right:1px solid rgba(255,255,255,.12);">Hours</span>
+              <span id="prev-nav-about" style="color:rgba(255,255,255,.85);font-size:11px;padding:9px 12px;border-right:1px solid rgba(255,255,255,.12);">About Us</span>
+              <span id="prev-nav-returns" style="color:rgba(255,255,255,.85);font-size:11px;padding:9px 12px;">Returns</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+          <!-- LOGO & BRANDING -->
+          <div class="table-wrap" style="padding:22px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px;"><i class="ti ti-building-store" style="color:var(--red);"></i>Logo & Branding</div>
+            <div style="font-size:12px;color:var(--gray);margin-bottom:16px;">Controls the logo badge and company name shown in the header.</div>
+
+            <div class="form-group">
+              <label>Logo Badge Text (short name)</label>
+              <input type="text" id="ap-logo-badge" value="DFW" maxlength="6" oninput="livePreview()" placeholder="e.g. DFW"/>
+              <span class="form-hint">Shown in the red badge. Keep it short (2–5 chars).</span>
+            </div>
+            <div class="form-group">
+              <label>Company Main Name</label>
+              <input type="text" id="ap-logo-name" value="DISPOSABLE" oninput="livePreview()" placeholder="e.g. DISPOSABLE"/>
+              <span class="form-hint">Large text next to the badge. All caps recommended.</span>
+            </div>
+            <div class="form-group">
+              <label>Company Subtitle / Tagline</label>
+              <input type="text" id="ap-logo-sub" value="PACKAGING & SUPPLY CO." oninput="livePreview()" placeholder="e.g. PACKAGING & SUPPLY CO."/>
+              <span class="form-hint">Small text below the company name.</span>
+            </div>
+            <div class="form-group">
+              <label>Browser Tab Title</label>
+              <input type="text" id="ap-page-title" value="DFW Disposable – Packaging & Supply Co." placeholder="Site tab title"/>
+            </div>
+            <div class="form-group">
+              <label>Footer Copyright Name</label>
+              <input type="text" id="ap-footer-name" value="DFW Disposable Packaging & Supply Co." placeholder="Full legal name for footer"/>
+            </div>
+          </div>
+
+          <!-- HEADER & COLORS -->
+          <div class="table-wrap" style="padding:22px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px;"><i class="ti ti-palette" style="color:var(--red);"></i>Header Colors</div>
+            <div style="font-size:12px;color:var(--gray);margin-bottom:16px;">Customize the color scheme of the header and navigation.</div>
+
+            <div class="form-group">
+              <label>Header Background Color</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input type="color" id="ap-header-color" value="#c8181e" oninput="livePreview()" style="width:48px;height:38px;border:1px solid var(--border);border-radius:7px;cursor:pointer;padding:2px;"/>
+                <input type="text" id="ap-header-color-hex" value="#c8181e" oninput="syncColor('ap-header-color','ap-header-color-hex');livePreview();" style="flex:1;" placeholder="#c8181e"/>
+              </div>
+              <span class="form-hint">Used for the main header bar and navigation bar.</span>
+            </div>
+            <div class="form-group">
+              <label>Header Preset Colors</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                <div onclick="setHeaderColor('#c8181e')" style="width:32px;height:32px;background:#c8181e;border-radius:6px;cursor:pointer;border:2px solid #c8181e;" title="Red (Default)"></div>
+                <div onclick="setHeaderColor('#1c1c1c')" style="width:32px;height:32px;background:#1c1c1c;border-radius:6px;cursor:pointer;" title="Dark"></div>
+                <div onclick="setHeaderColor('#1d6fa4')" style="width:32px;height:32px;background:#1d6fa4;border-radius:6px;cursor:pointer;" title="Blue"></div>
+                <div onclick="setHeaderColor('#1a8a4a')" style="width:32px;height:32px;background:#1a8a4a;border-radius:6px;cursor:pointer;" title="Green"></div>
+                <div onclick="setHeaderColor('#7c3aed')" style="width:32px;height:32px;background:#7c3aed;border-radius:6px;cursor:pointer;" title="Purple"></div>
+                <div onclick="setHeaderColor('#d97706')" style="width:32px;height:32px;background:#d97706;border-radius:6px;cursor:pointer;" title="Orange"></div>
+                <div onclick="setHeaderColor('#0f766e')" style="width:32px;height:32px;background:#0f766e;border-radius:6px;cursor:pointer;" title="Teal"></div>
+                <div onclick="setHeaderColor('#be185d')" style="width:32px;height:32px;background:#be185d;border-radius:6px;cursor:pointer;" title="Pink"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Logo Badge Background</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input type="color" id="ap-badge-color" value="#ffffff" oninput="livePreview()" style="width:48px;height:38px;border:1px solid var(--border);border-radius:7px;cursor:pointer;padding:2px;"/>
+                <input type="text" id="ap-badge-color-hex" value="#ffffff" oninput="syncColor('ap-badge-color','ap-badge-color-hex');livePreview();" style="flex:1;" placeholder="#ffffff"/>
+              </div>
+              <span class="form-hint">Badge behind the short logo text (e.g. DFW).</span>
+            </div>
+            <div class="form-group">
+              <label>Logo Badge Text Color</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input type="color" id="ap-badge-text-color" value="#c8181e" oninput="livePreview()" style="width:48px;height:38px;border:1px solid var(--border);border-radius:7px;cursor:pointer;padding:2px;"/>
+                <input type="text" id="ap-badge-text-hex" value="#c8181e" oninput="syncColor('ap-badge-text-color','ap-badge-text-hex');livePreview();" style="flex:1;" placeholder="#c8181e"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- NAVIGATION LINKS -->
+          <div class="table-wrap" style="padding:22px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px;"><i class="ti ti-menu-2" style="color:var(--red);"></i>Navigation Links</div>
+            <div style="font-size:12px;color:var(--gray);margin-bottom:16px;">Edit the labels shown in the top navigation bar.</div>
+            <div class="form-group"><label>Nav Link 1 (Home)</label><input type="text" id="nav-l1" value="Home" oninput="livePreview()"/></div>
+            <div class="form-group"><label>Nav Link 2</label><input type="text" id="nav-l2" value="Custom Products" oninput="livePreview()"/></div>
+            <div class="form-group"><label>Nav Link 3</label><input type="text" id="nav-l3" value="Delivery" oninput="livePreview()"/></div>
+            <div class="form-group"><label>Nav Link 4</label><input type="text" id="nav-l4" value="Contact Us" oninput="livePreview()"/></div>
+            <div class="form-group"><label>Nav Link 5</label><input type="text" id="nav-l5" value="Hours" oninput="livePreview()"/></div>
+            <div class="form-group"><label>Nav Link 6</label><input type="text" id="nav-l6" value="About Us" oninput="livePreview()"/></div>
+            <div class="form-group"><label>Nav Link 7</label><input type="text" id="nav-l7" value="Returns" oninput="livePreview()"/></div>
+          </div>
+
+          <!-- CONTACT IN HEADER -->
+          <div class="table-wrap" style="padding:22px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px;"><i class="ti ti-phone" style="color:var(--red);"></i>Header Contact Info</div>
+            <div style="font-size:12px;color:var(--gray);margin-bottom:16px;">Contact details displayed in the top-right of the header.</div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" id="ap-phone" value="(469) 927-9927" oninput="livePreview()" placeholder="(469) 000-0000"/>
+            </div>
+            <div class="form-group">
+              <label>Show Phone in Header</label>
+              <div class="toggle-wrap">
+                <label class="toggle"><input type="checkbox" id="ap-show-phone" checked onchange="livePreview()"/><span class="toggle-slider"></span></label>
+                <span class="toggle-label">Display phone number in header</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Show Cart Button</label>
+              <div class="toggle-wrap">
+                <label class="toggle"><input type="checkbox" id="ap-show-cart" checked onchange="livePreview()"/><span class="toggle-slider"></span></label>
+                <span class="toggle-label">Show cart button in header</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Info Banner Background</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                <div onclick="setBannerBg('#1c1c1c','Dark')" style="width:28px;height:28px;background:#1c1c1c;border-radius:5px;cursor:pointer;border:2px solid #555;" title="Dark"></div>
+                <div onclick="setBannerBg('#c8181e','Red')" style="width:28px;height:28px;background:#c8181e;border-radius:5px;cursor:pointer;" title="Red"></div>
+                <div onclick="setBannerBg('#1d6fa4','Blue')" style="width:28px;height:28px;background:#1d6fa4;border-radius:5px;cursor:pointer;" title="Blue"></div>
+                <div onclick="setBannerBg('#1a8a4a','Green')" style="width:28px;height:28px;background:#1a8a4a;border-radius:5px;cursor:pointer;" title="Green"></div>
+              </div>
+              <span class="form-hint" id="banner-bg-label">Currently: Dark</span>
+            </div>
+
+            <div style="background:var(--green-bg);border:1px solid #a7f3d0;border-radius:8px;padding:12px 14px;margin-top:6px;">
+              <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:4px;"><i class="ti ti-info-circle"></i> How to Apply Changes</div>
+              <div style="font-size:12px;color:#166534;line-height:1.6;">Click <b>Save & Apply</b> to write all changes to the site config. Then click <b>View Site</b> in the top bar to see the result on the live website.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- EXPORT CONFIG -->
+        <div class="table-wrap" style="padding:20px;margin-top:4px;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px;"><i class="ti ti-code" style="color:var(--red);"></i>Generated CSS Config</div>
+          <div style="font-size:12px;color:var(--gray);margin-bottom:10px;">This is the CSS/config block that gets applied to the site when you save. You can also copy and paste it manually.</div>
+          <pre id="config-output" style="background:#1a1a1a;color:#88d4f0;border-radius:8px;padding:14px;font-size:12px;overflow-x:auto;line-height:1.7;white-space:pre-wrap;">/* DFW Disposable — Site Config */
+--header-color: #c8181e;
+--logo-badge: "DFW";
+--logo-name: "DISPOSABLE";
+--logo-sub: "PACKAGING & SUPPLY CO.";
+--phone: "(469) 927-9927";</pre>
+          <button class="tb-btn" style="margin-top:10px;" onclick="copyConfig()"><i class="ti ti-copy"></i>Copy Config</button>
+        </div>
+      </div>
+
+      <!-- ══ ADMIN USERS ══ -->
+      <div id="sec-admins" class="hidden">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-users"></i>Admin Users</div>
+          <div class="sec-actions">
+            <button class="tb-btn tb-btn-red" onclick="openAddAdminModal()"><i class="ti ti-plus"></i>Add Admin</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Last Login</th><th>Actions</th></tr></thead>
+            <tbody id="admins-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- ══ HERO SLIDER EDITOR ══ -->
+      <div id="sec-hero-editor" class="hidden">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-layout-board"></i>Hero Slider Editor</div>
+          <div class="sec-actions">
+            <button class="tb-btn" onclick="heroEditorAddSlide()"><i class="ti ti-plus"></i>Add Slide</button>
+            <button class="tb-btn tb-btn-red" onclick="saveHeroSlider()"><i class="ti ti-device-floppy"></i>Save Slider</button>
+          </div>
+        </div>
+        <div style="background:var(--orange-bg);border:1px solid #fcd34d;border-radius:8px;padding:11px 16px;margin-bottom:18px;font-size:12px;color:#92400e;display:flex;align-items:center;gap:9px;">
+          <i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0;"></i>
+          Click a slide on the left to edit it. Upload an image or choose a gradient background. Changes show instantly in the preview.
+        </div>
+        <div class="slide-editor-grid">
+          <!-- Slide list -->
+          <div>
+            <div class="reorder-hint"><i class="ti ti-grip-vertical"></i>Click a slide to select and edit</div>
+            <div class="slide-list" id="hero-slide-list"></div>
+            <button class="add-slide-btn" onclick="heroEditorAddSlide()"><i class="ti ti-plus"></i>Add New Slide</button>
+          </div>
+          <!-- Edit panel -->
+          <div class="slide-editor-panel">
+            <div id="hero-edit-no-selection" style="text-align:center;padding:40px 20px;color:var(--gray);">
+              <i class="ti ti-cursor-text" style="font-size:36px;opacity:.3;display:block;margin-bottom:10px;"></i>
+              <p style="font-size:13px;">Select a slide on the left to start editing</p>
+            </div>
+            <div id="hero-edit-form" style="display:none;">
+              <!-- Live preview -->
+              <div id="hero-live-preview" class="slide-preview-box" style="background:linear-gradient(135deg,#1c1c1c,#3a0a0c);margin-bottom:16px;min-height:160px;">
+                <div>
+                  <div class="sp-badge" id="hprev-badge"><i class="ti ti-tag"></i> OFFER</div>
+                  <div class="sp-title" id="hprev-title">Slide Title Here</div>
+                  <div class="sp-sub" id="hprev-sub">Subtitle text goes here</div>
+                  <div class="sp-tags" id="hprev-tags">
+                    <span class="sp-tag">Tag 1</span>
+                    <span class="sp-tag">Tag 2</span>
+                  </div>
+                </div>
+                <div id="hprev-img-wrap">
+                  <div class="sp-img-placeholder"><i class="ti ti-photo"></i></div>
+                </div>
+              </div>
+
+              <input type="hidden" id="hero-edit-idx"/>
+              <div class="form-grid">
+                <div class="form-group full"><label>Slide Title *</label>
+                  <input type="text" id="he-title" placeholder="Your #1 Source for Disposable Products" oninput="heroLiveUpdate()"/>
+                </div>
+                <div class="form-group full"><label>Badge Label (top tag)</label>
+                  <input type="text" id="he-badge" placeholder="e.g. LIMITED OFFER" oninput="heroLiveUpdate()"/>
+                </div>
+                <div class="form-group full"><label>Subtitle / Description</label>
+                  <textarea id="he-sub" rows="2" placeholder="Supporting text shown below the title..." oninput="heroLiveUpdate()"></textarea>
+                </div>
+                <div class="form-group"><label>Tag 1</label><input type="text" id="he-tag1" placeholder="🏪 Will-Call" oninput="heroLiveUpdate()"/></div>
+                <div class="form-group"><label>Tag 2</label><input type="text" id="he-tag2" placeholder="🚚 Free Delivery" oninput="heroLiveUpdate()"/></div>
+                <div class="form-group"><label>Tag 3</label><input type="text" id="he-tag3" placeholder="📦 Bulk Pricing" oninput="heroLiveUpdate()"/></div>
+                <div class="form-group"><label>Button 1 Label</label><input type="text" id="he-btn1" placeholder="Call Us Now"/></div>
+                <div class="form-group"><label>Button 1 Action</label>
+                  <select id="he-btn1-action">
+                    <option value="contact">Go to Contact</option>
+                    <option value="delivery">Go to Delivery</option>
+                    <option value="home">Go to Home</option>
+                    <option value="about">Go to About</option>
+                    <option value="custom">Go to Custom Products</option>
+                    <option value="restaurant">Go to Restaurant Login</option>
+                    <option value="cat-earth-friendly">Category: Earth Friendly</option>
+                    <option value="cat-cutlery">Category: Cutlery</option>
+                    <option value="cat-cups-lids">Category: Cups & Lids</option>
+                    <option value="cat-bags">Category: Bags</option>
+                    <option value="cat-containers">Category: Containers</option>
+                  </select>
+                </div>
+                <div class="form-group"><label>Button 2 Label</label><input type="text" id="he-btn2" placeholder="Delivery Info"/></div>
+                <div class="form-group"><label>Button 2 Action</label>
+                  <select id="he-btn2-action">
+                    <option value="delivery">Go to Delivery</option>
+                    <option value="contact">Go to Contact</option>
+                    <option value="home">Go to Home</option>
+                    <option value="about">Go to About</option>
+                    <option value="custom">Go to Custom Products</option>
+                    <option value="restaurant">Go to Restaurant Login</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Background -->
+              <div style="margin-bottom:16px;">
+                <label style="font-size:12px;font-weight:600;color:var(--dark);display:block;margin-bottom:8px;">Background Style</label>
+                <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                  <button onclick="setHeroBgMode('gradient')" id="he-mode-gradient" class="tb-btn tb-btn-red" style="font-size:11px;padding:5px 12px;"><i class="ti ti-palette"></i>Gradient</button>
+                  <button onclick="setHeroBgMode('image')" id="he-mode-image" class="tb-btn" style="font-size:11px;padding:5px 12px;"><i class="ti ti-photo"></i>Image</button>
+                </div>
+
+                <!-- Gradient options -->
+                <div id="he-gradient-opts">
+                  <div style="font-size:11px;color:var(--gray);margin-bottom:6px;">Choose gradient preset:</div>
+                  <div class="color-swatch-row" id="he-grad-swatches">
+                    <div class="color-swatch selected" style="background:linear-gradient(135deg,#1c1c1c,#3a0a0c);" onclick="selectHeroGrad(0,this)" title="Dark Red"></div>
+                    <div class="color-swatch" style="background:linear-gradient(135deg,#0a1628,#1d3a6a);" onclick="selectHeroGrad(1,this)" title="Deep Blue"></div>
+                    <div class="color-swatch" style="background:linear-gradient(135deg,#0a2010,#1a5c30);" onclick="selectHeroGrad(2,this)" title="Forest Green"></div>
+                    <div class="color-swatch" style="background:linear-gradient(135deg,#1a0a28,#4a1a6e);" onclick="selectHeroGrad(3,this)" title="Purple"></div>
+                    <div class="color-swatch" style="background:linear-gradient(135deg,#1c1008,#6e3a0a);" onclick="selectHeroGrad(4,this)" title="Burnt Orange"></div>
+                    <div class="color-swatch" style="background:linear-gradient(135deg,#0a1818,#0a4a4a);" onclick="selectHeroGrad(5,this)" title="Teal"></div>
+                    <div class="color-swatch" style="background:linear-gradient(135deg,#1a1208,#5a4a0a);" onclick="selectHeroGrad(6,this)" title="Gold"></div>
+                    <div class="color-swatch" style="background:linear-gradient(135deg,#180818,#4a0a3a);" onclick="selectHeroGrad(7,this)" title="Magenta"></div>
+                  </div>
+                </div>
+
+                <!-- Image options -->
+                <div id="he-image-opts" style="display:none;">
+                  <input type="file" id="he-img-upload" accept="image/*" style="display:none;" onchange="handleHeroImgUpload(this)"/>
+                  <div class="img-upload-zone" id="he-img-dropzone"
+                    onclick="document.getElementById('he-img-upload').click()"
+                    ondragover="event.preventDefault();this.classList.add('drag-over')"
+                    ondragleave="this.classList.remove('drag-over')"
+                    ondrop="handleHeroImgDrop(event)">
+                    <i class="ti ti-cloud-upload"></i>
+                    <div class="iuz-title">Click to upload or drag & drop a banner image</div>
+                    <div class="iuz-sub">JPG, PNG, WebP · Recommended: 1200×400px · Max 5MB</div>
+                  </div>
+                  <div class="img-preview-strip" id="he-img-strip"></div>
+                </div>
+              </div>
+
+              <!-- Accent color -->
+              <div class="form-group">
+                <label>Accent / Highlight Color</label>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <input type="color" id="he-accent" value="#ff8888" oninput="heroLiveUpdate()" style="width:44px;height:36px;border:1px solid var(--border);border-radius:7px;cursor:pointer;padding:2px;"/>
+                  <input type="text" id="he-accent-hex" value="#ff8888" oninput="syncHeroAccent()" placeholder="#ff8888" style="flex:1;"/>
+                </div>
+                <span class="form-hint">Used for highlighted words in the title. Wraps text in &lt;span&gt; tags.</span>
+              </div>
+
+              <div style="display:flex;gap:10px;margin-top:6px;">
+                <button class="tb-btn tb-btn-red" onclick="saveHeroSlide()" style="flex:1;justify-content:center;"><i class="ti ti-check"></i>Apply Changes</button>
+                <button class="tb-btn" onclick="deleteHeroSlide()" style="color:#e53935;border-color:#e53935;"><i class="ti ti-trash"></i>Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PROMO SLIDER EDITOR ══ -->
+      <div id="sec-promo-slider-editor" class="hidden">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-carousel-horizontal"></i>Promo Slider Editor</div>
+          <div class="sec-actions">
+            <button class="tb-btn" onclick="promoEditorAddSlide()"><i class="ti ti-plus"></i>Add Slide</button>
+            <button class="tb-btn tb-btn-red" onclick="savePromoSlider()"><i class="ti ti-device-floppy"></i>Save Slider</button>
+          </div>
+        </div>
+        <div style="background:var(--blue-bg);border:1px solid #bfdbfe;border-radius:8px;padding:11px 16px;margin-bottom:18px;font-size:12px;color:#1e40af;display:flex;align-items:center;gap:9px;">
+          <i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0;"></i>
+          Edit the header promo slides — the small rotating banner between the DFW logo and phone number. You can also upload an image to use as the slide background.
+        </div>
+        <div class="slide-editor-grid">
+          <!-- Slide list -->
+          <div>
+            <div class="reorder-hint"><i class="ti ti-grip-vertical"></i>Click to select · Changes reflect instantly</div>
+            <div class="slide-list" id="promo-slide-list"></div>
+            <button class="add-slide-btn" onclick="promoEditorAddSlide()"><i class="ti ti-plus"></i>Add New Promo Slide</button>
+          </div>
+          <!-- Edit panel -->
+          <div class="slide-editor-panel">
+            <div id="promo-edit-no-selection" style="text-align:center;padding:40px 20px;color:var(--gray);">
+              <i class="ti ti-cursor-text" style="font-size:36px;opacity:.3;display:block;margin-bottom:10px;"></i>
+              <p style="font-size:13px;">Select a promo slide on the left to edit it</p>
+            </div>
+            <div id="promo-edit-form" style="display:none;">
+              <!-- Live preview of promo slide -->
+              <div style="background:#1c1c1c;border-radius:9px;padding:14px 18px;margin-bottom:16px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <div style="font-size:10px;color:#555;margin-bottom:2px;">HEADER PROMO PREVIEW</div>
+                <div id="pprev-badge" style="display:inline-flex;align-items:center;gap:5px;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px;"></div>
+                <div id="pprev-text" style="font-size:13px;font-weight:600;color:#fff;text-align:center;"></div>
+                <div id="pprev-img-wrap" style="display:none;margin-top:6px;">
+                  <img id="pprev-img" src="" style="height:50px;border-radius:6px;object-fit:cover;"/>
+                </div>
+              </div>
+
+              <input type="hidden" id="promo-edit-idx-editor"/>
+              <div class="form-group"><label>Badge / Label *</label>
+                <input type="text" id="pe-badge" placeholder="e.g. LIMITED OFFER" oninput="promoLiveUpdate()"/>
+                <span class="form-hint">Short label shown in the red pill. Use ALL CAPS.</span>
+              </div>
+              <div class="form-group"><label>Slide Text *</label>
+                <input type="text" id="pe-text" placeholder="🎉 10% OFF all Earth Friendly products! Use code ECO10" oninput="promoLiveUpdate()"/>
+                <span class="form-hint">Use emoji for visual punch. Wrap key words in asterisks for bold: *word*</span>
+              </div>
+              <div class="form-group"><label>Badge Icon (Tabler icon name)</label>
+                <input type="text" id="pe-icon" placeholder="ti-rosette-discount" oninput="promoLiveUpdate()"/>
+                <span class="form-hint">e.g. ti-truck, ti-leaf, ti-star, ti-building-restaurant</span>
+              </div>
+
+              <!-- Promo image upload -->
+              <div style="margin-bottom:14px;">
+                <label style="font-size:12px;font-weight:600;color:var(--dark);display:block;margin-bottom:8px;">Background Image (optional)</label>
+                <input type="file" id="pe-img-upload" accept="image/*" style="display:none;" onchange="handlePromoImgUpload(this)"/>
+                <div class="img-upload-zone" id="pe-img-dropzone"
+                  onclick="document.getElementById('pe-img-upload').click()"
+                  ondragover="event.preventDefault();this.classList.add('drag-over')"
+                  ondragleave="this.classList.remove('drag-over')"
+                  ondrop="handlePromoImgDrop(event)">
+                  <i class="ti ti-cloud-upload"></i>
+                  <div class="iuz-title">Upload an image for this promo slide</div>
+                  <div class="iuz-sub">JPG, PNG · Recommended: 600×80px · Max 2MB</div>
+                </div>
+                <div class="img-preview-strip" id="pe-img-strip"></div>
+              </div>
+
+              <div style="display:flex;gap:10px;">
+                <button class="tb-btn tb-btn-red" onclick="savePromoSlide()" style="flex:1;justify-content:center;"><i class="ti ti-check"></i>Apply Changes</button>
+                <button class="tb-btn" onclick="deletePromoSlide()" style="color:#e53935;border-color:#e53935;"><i class="ti ti-trash"></i>Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /admin-app -->
+
+<!-- ════════ MODALS ════════ -->
+
+<!-- Add/Edit Product Modal -->
+<div class="modal-bg hidden" id="modal-product">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="ti ti-package"></i><span id="modal-prod-title">Add New Product</span></div>
+      <button class="modal-close" onclick="closeModal('modal-product')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="prod-edit-idx"/>
+      <div class="form-grid">
+        <div class="form-group full"><label>Product Name *</label><input type="text" id="prod-name" placeholder="e.g. 8oz Hot Cup"/></div>
+        <div class="form-group"><label>SKU *</label><input type="text" id="prod-sku" placeholder="e.g. CL-001"/></div>
+        <div class="form-group"><label>Category *</label>
+          <select id="prod-cat">
+            <option value="">-- Select Category --</option>
+            <option>Earth Friendly</option><option>Cutlery</option><option>Cups & Lids</option>
+            <option>Hinged Lid</option><option>Plates, Bowls & Trays</option><option>Napkins</option>
+            <option>Bags</option><option>Food Wraps</option><option>Disposable Apparel</option>
+            <option>Janitorial</option><option>Other Products</option><option>Boxes, Circles & Pads</option>
+            <option>Black Containers</option><option>Aluminum Foil Pans</option>
+            <option>Catering Trays</option><option>Containers</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Price *</label>
+          <div class="input-prefix"><span>$</span><input type="text" id="prod-price" placeholder="0.00"/></div>
+        </div>
+        <div class="form-group"><label>Unit (per case, each, etc.)</label><input type="text" id="prod-unit" placeholder="e.g. /cs  or  /ea"/></div>
+        <div class="form-group"><label>Status</label>
+          <select id="prod-status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+        <div class="form-group full"><label>Description</label><textarea id="prod-desc" placeholder="Short product description…"></textarea></div>
+        <div class="form-group full"><label>Notes / Tags</label><input type="text" id="prod-notes" placeholder="e.g. bestseller, eco-friendly, bulk"/>
+          <span class="form-hint">Comma-separated tags for internal reference.</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="tb-btn" onclick="closeModal('modal-product')">Cancel</button>
+      <button class="tb-btn tb-btn-red" onclick="saveProduct()"><i class="ti ti-check"></i>Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Promotion Modal -->
+<div class="modal-bg hidden" id="modal-promo">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="ti ti-rosette-discount"></i><span id="modal-promo-title">New Promotion</span></div>
+      <button class="modal-close" onclick="closeModal('modal-promo')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="promo-edit-idx"/>
+      <div class="form-grid">
+        <div class="form-group full"><label>Promotion Name *</label><input type="text" id="promo-name" placeholder="e.g. Summer Sale 2026"/></div>
+        <div class="form-group"><label>Coupon Code *</label><input type="text" id="promo-code" placeholder="e.g. SUMMER10" style="text-transform:uppercase;"/></div>
+        <div class="form-group"><label>Discount Type *</label>
+          <select id="promo-type" onchange="updatePromoTypeUI()">
+            <option value="pct">Percentage Off (%)</option>
+            <option value="flat">Fixed Amount Off ($)</option>
+            <option value="free">Free Delivery</option>
+          </select>
+        </div>
+        <div class="form-group" id="promo-val-group"><label>Discount Value *</label>
+          <div class="input-prefix"><span id="promo-val-prefix">%</span><input type="number" id="promo-val" placeholder="10"/></div>
+        </div>
+        <div class="form-group"><label>Min. Order Amount ($)</label>
+          <div class="input-prefix"><span>$</span><input type="number" id="promo-min" placeholder="0"/></div>
+        </div>
+        <div class="form-group"><label>Max Uses (0 = unlimited)</label><input type="number" id="promo-uses" placeholder="0"/></div>
+        <div class="form-group"><label>Start Date</label><input type="date" id="promo-start"/></div>
+        <div class="form-group"><label>End Date</label><input type="date" id="promo-end"/></div>
+        <div class="form-group full"><label>Applies To</label>
+          <select id="promo-applies">
+            <option value="all">All Products</option>
+            <option value="cat">Specific Category</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Description / Internal Notes</label><textarea id="promo-desc" placeholder="Internal notes about this promotion…"></textarea></div>
+        <div class="form-group full">
+          <label>Active</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" id="promo-active" checked/><span class="toggle-slider"></span></label>
+            <span class="toggle-label">Promotion is live on site</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="tb-btn" onclick="closeModal('modal-promo')">Cancel</button>
+      <button class="tb-btn tb-btn-red" onclick="savePromo()"><i class="ti ti-check"></i>Save Promotion</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal-bg hidden" id="modal-cat">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title"><i class="ti ti-category"></i>Add Category</div>
+      <button class="modal-close" onclick="closeModal('modal-cat')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Category Name *</label><input type="text" id="cat-name" placeholder="e.g. Disposable Gloves"/></div>
+      <div class="form-group"><label>Icon (Tabler icon name)</label><input type="text" id="cat-icon" placeholder="e.g. ti-hand"/></div>
+      <div class="form-group"><label>Description</label><textarea id="cat-desc" placeholder="Brief description of this category…"></textarea></div>
+      <div class="form-group">
+        <label>Status</label>
+        <div class="toggle-wrap"><label class="toggle"><input type="checkbox" id="cat-active" checked/><span class="toggle-slider"></span></label><span class="toggle-label">Active</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="tb-btn" onclick="closeModal('modal-cat')">Cancel</button>
+      <button class="tb-btn tb-btn-red" onclick="saveCat()"><i class="ti ti-check"></i>Add Category</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Price Modal -->
+<div class="modal-bg hidden" id="modal-bulk">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title"><i class="ti ti-percentage"></i>Bulk Price Adjustment</div>
+      <button class="modal-close" onclick="closeModal('modal-bulk')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Apply To</label>
+        <select id="bulk-cat"><option value="all">All Products</option>
+          <option>Earth Friendly</option><option>Cutlery</option><option>Cups & Lids</option>
+          <option>Bags</option><option>Containers</option><option>Catering Trays</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Adjustment Type</label>
+        <select id="bulk-type"><option value="increase">Increase by %</option><option value="decrease">Decrease by %</option><option value="flat-increase">Increase by $</option><option value="flat-decrease">Decrease by $</option></select>
+      </div>
+      <div class="form-group"><label>Amount</label>
+        <div class="input-prefix"><span id="bulk-prefix">%</span><input type="number" id="bulk-amount" placeholder="5"/></div>
+      </div>
+      <div style="background:var(--red-light);border-radius:7px;padding:10px 14px;font-size:12px;color:#a01216;">
+        <i class="ti ti-alert-triangle" style="margin-right:5px;"></i>This will update prices for all matching products. This action can be undone by re-adjusting.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="tb-btn" onclick="closeModal('modal-bulk')">Cancel</button>
+      <button class="tb-btn tb-btn-red" onclick="applyBulkPriceConfirm()"><i class="ti ti-check"></i>Apply Adjustment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Admin Modal -->
+<div class="modal-bg hidden" id="modal-admin">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title"><i class="ti ti-user-plus"></i>Add Admin User</div>
+      <button class="modal-close" onclick="closeModal('modal-admin')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="new-admin-name" placeholder="Jane Smith"/></div>
+      <div class="form-group"><label>Username *</label><input type="text" id="new-admin-user" placeholder="jsmith"/></div>
+      <div class="form-group"><label>Email *</label><input type="email" id="new-admin-email" placeholder="jane@dfwdisposable.com"/></div>
+      <div class="form-group"><label>Role</label>
+        <select id="new-admin-role"><option>Super Administrator</option><option>Product Manager</option><option>Marketing</option><option>Read Only</option></select>
+      </div>
+      <div class="form-group"><label>Temporary Password *</label><input type="password" id="new-admin-pass" placeholder="Min. 8 characters"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="tb-btn" onclick="closeModal('modal-admin')">Cancel</button>
+      <button class="tb-btn tb-btn-red" onclick="saveAdmin()"><i class="ti ti-check"></i>Add Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-check" id="toast-icon"></i><span id="toast-msg"></span></div>
+
+<script>
+// ══════════════════════════════════════
+// DATA STORE
+// ══════════════════════════════════════
+let products = [
+  {name:'Compostable 9" Plate',sku:'EF-001',category:'Earth Friendly',price:'18.99',unit:'/cs',status:'active',desc:''},
+  {name:'Biodegradable Fork',sku:'EF-002',category:'Earth Friendly',price:'12.50',unit:'/cs',status:'active',desc:''},
+  {name:'Sugarcane Bowl 16oz',sku:'EF-003',category:'Earth Friendly',price:'22.00',unit:'/cs',status:'active',desc:''},
+  {name:'Paper Straw 7.75"',sku:'EF-004',category:'Earth Friendly',price:'9.99',unit:'/cs',status:'active',desc:''},
+  {name:'Kraft Paper Bag',sku:'EF-005',category:'Earth Friendly',price:'14.50',unit:'/cs',status:'active',desc:''},
+  {name:'Bamboo Spoon',sku:'EF-006',category:'Earth Friendly',price:'13.75',unit:'/cs',status:'active',desc:''},
+  {name:'Heavyweight Fork',sku:'CU-001',category:'Cutlery',price:'8.99',unit:'/cs',status:'active',desc:''},
+  {name:'Heavyweight Knife',sku:'CU-002',category:'Cutlery',price:'8.99',unit:'/cs',status:'active',desc:''},
+  {name:'Heavyweight Spoon',sku:'CU-003',category:'Cutlery',price:'8.99',unit:'/cs',status:'active',desc:''},
+  {name:'Cutlery Kit FK&S',sku:'CU-004',category:'Cutlery',price:'15.50',unit:'/cs',status:'active',desc:''},
+  {name:'Teaspoon Medium',sku:'CU-005',category:'Cutlery',price:'7.25',unit:'/cs',status:'active',desc:''},
+  {name:'Soup Spoon',sku:'CU-006',category:'Cutlery',price:'9.25',unit:'/cs',status:'active',desc:''},
+  {name:'8oz Hot Cup',sku:'CL-001',category:'Cups & Lids',price:'24.99',unit:'/cs',status:'active',desc:''},
+  {name:'12oz Hot Cup',sku:'CL-002',category:'Cups & Lids',price:'28.99',unit:'/cs',status:'active',desc:''},
+  {name:'16oz Cold Cup',sku:'CL-003',category:'Cups & Lids',price:'22.50',unit:'/cs',status:'active',desc:''},
+  {name:'Flat Lid 12-16oz',sku:'CL-004',category:'Cups & Lids',price:'16.00',unit:'/cs',status:'active',desc:''},
+  {name:'Dome Lid 16oz',sku:'CL-005',category:'Cups & Lids',price:'17.00',unit:'/cs',status:'active',desc:''},
+  {name:'32oz Cold Cup',sku:'CL-006',category:'Cups & Lids',price:'31.99',unit:'/cs',status:'active',desc:''},
+  {name:'6" Hinged Clamshell',sku:'HL-001',category:'Hinged Lid',price:'19.99',unit:'/cs',status:'active',desc:''},
+  {name:'9" Hinged Clamshell',sku:'HL-002',category:'Hinged Lid',price:'24.99',unit:'/cs',status:'active',desc:''},
+  {name:'3-Compartment Clam',sku:'HL-003',category:'Hinged Lid',price:'26.99',unit:'/cs',status:'active',desc:''},
+  {name:'Burger Box Hinged',sku:'HL-004',category:'Hinged Lid',price:'21.00',unit:'/cs',status:'active',desc:''},
+  {name:'6" Foam Plate',sku:'PB-001',category:'Plates, Bowls & Trays',price:'10.99',unit:'/cs',status:'active',desc:''},
+  {name:'9" Foam Plate',sku:'PB-002',category:'Plates, Bowls & Trays',price:'14.99',unit:'/cs',status:'active',desc:''},
+  {name:'10" Foam Plate',sku:'PB-003',category:'Plates, Bowls & Trays',price:'16.50',unit:'/cs',status:'active',desc:''},
+  {name:'12oz Foam Bowl',sku:'PB-004',category:'Plates, Bowls & Trays',price:'13.99',unit:'/cs',status:'active',desc:''},
+  {name:'Serving Tray 12x8',sku:'PB-005',category:'Plates, Bowls & Trays',price:'18.99',unit:'/cs',status:'active',desc:''},
+  {name:'Beverage Napkin 1-ply',sku:'NA-001',category:'Napkins',price:'7.50',unit:'/cs',status:'active',desc:''},
+  {name:'Luncheon Napkin 1-ply',sku:'NA-002',category:'Napkins',price:'9.99',unit:'/cs',status:'active',desc:''},
+  {name:'Dinner Napkin 2-ply',sku:'NA-003',category:'Napkins',price:'14.99',unit:'/cs',status:'active',desc:''},
+  {name:'T-Shirt Bag S 1000ct',sku:'BA-001',category:'Bags',price:'11.99',unit:'/cs',status:'active',desc:''},
+  {name:'T-Shirt Bag M 1000ct',sku:'BA-002',category:'Bags',price:'13.99',unit:'/cs',status:'active',desc:''},
+  {name:'T-Shirt Bag L 1000ct',sku:'BA-003',category:'Bags',price:'16.99',unit:'/cs',status:'active',desc:''},
+  {name:'Paper Bag #8',sku:'BA-004',category:'Bags',price:'14.50',unit:'/cs',status:'active',desc:''},
+  {name:'Plastic Wrap 18"',sku:'FW-001',category:'Food Wraps',price:'19.99',unit:'/ea',status:'active',desc:''},
+  {name:'Aluminum Foil 18"',sku:'FW-002',category:'Food Wraps',price:'17.99',unit:'/ea',status:'active',desc:''},
+  {name:'Deli Paper 12x12',sku:'FW-003',category:'Food Wraps',price:'12.50',unit:'/cs',status:'active',desc:''},
+  {name:'Vinyl Gloves S 100ct',sku:'AP-001',category:'Disposable Apparel',price:'8.99',unit:'/bx',status:'active',desc:''},
+  {name:'Vinyl Gloves M 100ct',sku:'AP-002',category:'Disposable Apparel',price:'8.99',unit:'/bx',status:'active',desc:''},
+  {name:'Vinyl Gloves L 100ct',sku:'AP-003',category:'Disposable Apparel',price:'8.99',unit:'/bx',status:'active',desc:''},
+  {name:'Poly Apron 28x46',sku:'AP-004',category:'Disposable Apparel',price:'14.99',unit:'/cs',status:'active',desc:''},
+  {name:'Trash Liner 33gal 100ct',sku:'JA-001',category:'Janitorial',price:'19.99',unit:'/cs',status:'active',desc:''},
+  {name:'Trash Liner 55gal 100ct',sku:'JA-002',category:'Janitorial',price:'26.99',unit:'/cs',status:'active',desc:''},
+  {name:'Paper Towel Roll 6pk',sku:'JA-003',category:'Janitorial',price:'14.50',unit:'/cs',status:'active',desc:''},
+  {name:'Toothpicks 1000ct',sku:'OT-001',category:'Other Products',price:'3.99',unit:'/bx',status:'active',desc:''},
+  {name:'Pizza Box 10"',sku:'BC-001',category:'Boxes, Circles & Pads',price:'28.99',unit:'/cs',status:'active',desc:''},
+  {name:'Pizza Box 12"',sku:'BC-002',category:'Boxes, Circles & Pads',price:'33.99',unit:'/cs',status:'active',desc:''},
+  {name:'Pizza Box 16"',sku:'BC-003',category:'Boxes, Circles & Pads',price:'39.99',unit:'/cs',status:'active',desc:''},
+  {name:'Cake Circle 10"',sku:'BC-004',category:'Boxes, Circles & Pads',price:'14.99',unit:'/cs',status:'active',desc:''},
+  {name:'Black Container 8oz',sku:'BK-001',category:'Black Containers',price:'16.99',unit:'/cs',status:'active',desc:''},
+  {name:'Black Container 16oz',sku:'BK-002',category:'Black Containers',price:'19.99',unit:'/cs',status:'active',desc:''},
+  {name:'Black Container 32oz',sku:'BK-003',category:'Black Containers',price:'24.99',unit:'/cs',status:'active',desc:''},
+  {name:'Black Clamshell 9"',sku:'BK-004',category:'Black Containers',price:'27.00',unit:'/cs',status:'active',desc:''},
+  {name:'Full Size Foil Pan',sku:'FP-001',category:'Aluminum Foil Pans',price:'22.99',unit:'/cs',status:'active',desc:''},
+  {name:'Half Size Foil Pan',sku:'FP-002',category:'Aluminum Foil Pans',price:'16.99',unit:'/cs',status:'active',desc:''},
+  {name:'Deep Full Pan',sku:'FP-003',category:'Aluminum Foil Pans',price:'27.50',unit:'/cs',status:'active',desc:''},
+  {name:'Oval Catering Tray',sku:'CT-001',category:'Catering Trays',price:'21.99',unit:'/cs',status:'active',desc:''},
+  {name:'Chafing Dish Full',sku:'CT-002',category:'Catering Trays',price:'39.99',unit:'/ea',status:'active',desc:''},
+  {name:'8oz Deli Container',sku:'CO-001',category:'Containers',price:'14.99',unit:'/cs',status:'active',desc:''},
+  {name:'16oz Deli Container',sku:'CO-002',category:'Containers',price:'16.99',unit:'/cs',status:'active',desc:''},
+  {name:'32oz Deli Container',sku:'CO-003',category:'Containers',price:'19.99',unit:'/cs',status:'active',desc:''},
+  {name:'Soup Container 12oz',sku:'CO-004',category:'Containers',price:'21.99',unit:'/cs',status:'active',desc:''},
+];
+
+let promotions = [
+  {name:'Summer Sale 2026',code:'SUMMER10',type:'pct',value:'10',min:'50',uses:'100',start:'2026-06-01',end:'2026-08-31',applies:'all',active:true,desc:'10% off for summer'},
+  {name:'Free Delivery Special',code:'FREEDEL',type:'free',value:'0',min:'100',uses:'0',start:'2026-05-01',end:'2026-12-31',applies:'all',active:true,desc:'Free delivery promo'},
+  {name:'Bulk Buyer Discount',code:'BULK15',type:'pct',value:'15',min:'300',uses:'50',start:'2026-01-01',end:'2026-12-31',applies:'all',active:false,desc:'15% off bulk orders'},
+];
+
+let adminUsers = [
+  {name:'Admin User',username:'admin',email:'admin@dfwdisposable.com',role:'Super Administrator',lastLogin:'Today, 9:42 AM'},
+  {name:'Maria G.',username:'mariag',email:'maria@dfwdisposable.com',role:'Product Manager',lastLogin:'Yesterday'},
+];
+
+// ══════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════
+function doLogin(){
+  const u=document.getElementById('admin-user').value.trim();
+  const p=document.getElementById('admin-pass').value.trim();
+  const err=document.getElementById('login-err');
+  if(u==='admin'&&p==='admin123'){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('admin-app').classList.remove('hidden');
+    initAdmin();
+  } else {
+    err.style.display='flex';err.style.alignItems='center';err.style.gap='7px';
+  }
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var ap=document.getElementById('admin-pass');
+  if(ap) ap.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+});
+
+function doLogout(){
+  document.getElementById('admin-app').classList.add('hidden');
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('admin-user').value='';
+  document.getElementById('admin-pass').value='';
+}
+
+function initAdmin(){
+  renderProducts();
+  renderCategories();
+  renderPricing();
+  renderPromos();
+  renderAdmins();
+  updateCounts();
+  setTimeout(initAppearance, 100);
+}
+
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+const sections={
+  dashboard:'Dashboard',products:'All Products',categories:'Categories',
+  pricing:'Pricing Manager',promotions:'Promotions',banner:'Info Banner',
+  'hero-editor':'Hero Slider Editor','promo-slider-editor':'Promo Slider Editor',
+  appearance:'Site Appearance',settings:'Store Settings',admins:'Admin Users'
+};
+const sectionIcons={
+  dashboard:'ti-layout-dashboard',products:'ti-package',categories:'ti-category',
+  pricing:'ti-tag',promotions:'ti-rosette-discount',banner:'ti-speakerphone',
+  'hero-editor':'ti-layout-board','promo-slider-editor':'ti-carousel-horizontal',
+  appearance:'ti-brush',settings:'ti-settings',admins:'ti-users'
+};
+function showSection(s){
+  document.querySelectorAll('[id^="sec-"]').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('sec-'+s).classList.remove('hidden');
+  document.querySelectorAll('.sb-link').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(el=>{
+    if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+s+"'"))el.classList.add('active');
+  });
+  document.getElementById('page-title').innerHTML=`<i class="ti ${sectionIcons[s]}"></i>${sections[s]}`;
+  const addBtn=document.getElementById('topbar-add-btn');
+  const addLabel=document.getElementById('topbar-add-label');
+  if(s==='products'){addBtn.style.display='flex';addLabel.textContent='Add Product';}
+  else if(s==='promotions'){addBtn.style.display='flex';addLabel.textContent='New Promotion';}
+  else if(s==='categories'){addBtn.style.display='flex';addLabel.textContent='Add Category';}
+  else if(s==='appearance'){addBtn.style.display='flex';addLabel.textContent='Save & Apply'; addBtn.setAttribute('onclick','saveAppearance()');}
+  else{addBtn.style.display='none';addBtn.setAttribute('onclick','openAddModal()');}
+}
+function openAddModal(){
+  if(document.getElementById('sec-promotions').classList.contains('hidden')===false){openAddPromo();return;}
+  if(document.getElementById('sec-categories').classList.contains('hidden')===false){openAddCatModal();return;}
+  openProductModal();
+}
+
+// ══════════════════════════════════════
+// PRODUCTS
+// ══════════════════════════════════════
+function updateCounts(){
+  const active=products.filter(p=>p.status==='active').length;
+  document.getElementById('sb-prod-count').textContent=products.length;
+  document.getElementById('dash-total-prod').textContent=products.length;
+  document.getElementById('dash-total-promo').textContent=promotions.filter(p=>p.active).length;
+  document.getElementById('sb-promo-count').textContent=promotions.filter(p=>p.active).length;
+}
+
+function renderProducts(list){
+  const data=list||products;
+  const tbody=document.getElementById('prod-tbody');
+  if(!data.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><i class="ti ti-package-off"></i><p>No products found</p></div></td></tr>`;return;}
+  tbody.innerHTML=data.map((p,i)=>{
+    const idx=list?products.indexOf(p):i;
+    return `<tr>
+      <td style="font-weight:600;">${p.name}</td>
+      <td><span class="sku-badge">${p.sku}</span></td>
+      <td>${p.category}</td>
+      <td><span class="price-tag">$${p.price}${p.unit}</span></td>
+      <td><span class="status-${p.status}">${p.status==='active'?'Active':'Inactive'}</span></td>
+      <td><div class="action-btns">
+        <button class="action-btn ab-edit" onclick="editProduct(${idx})"><i class="ti ti-edit"></i>Edit</button>
+        <button class="action-btn ab-toggle" onclick="toggleProduct(${idx})">${p.status==='active'?'Deactivate':'Activate'}</button>
+        <button class="action-btn ab-del" onclick="deleteProduct(${idx})"><i class="ti ti-trash"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterProducts(){
+  const q=document.getElementById('prod-search').value.toLowerCase();
+  const cat=document.getElementById('prod-cat-filter').value;
+  const status=document.getElementById('prod-status-filter').value;
+  const filtered=products.filter(p=>{
+    const matchQ=!q||(p.name.toLowerCase().includes(q)||p.sku.toLowerCase().includes(q));
+    const matchCat=!cat||p.category===cat;
+    const matchStatus=!status||p.status===status;
+    return matchQ&&matchCat&&matchStatus;
+  });
+  renderProducts(filtered);
+}
+
+function openProductModal(idx){
+  document.getElementById('prod-edit-idx').value=idx!==undefined?idx:'';
+  document.getElementById('modal-prod-title').textContent=idx!==undefined?'Edit Product':'Add New Product';
+  if(idx!==undefined){
+    const p=products[idx];
+    document.getElementById('prod-name').value=p.name;
+    document.getElementById('prod-sku').value=p.sku;
+    document.getElementById('prod-cat').value=p.category;
+    document.getElementById('prod-price').value=p.price;
+    document.getElementById('prod-unit').value=p.unit;
+    document.getElementById('prod-status').value=p.status;
+    document.getElementById('prod-desc').value=p.desc||'';
+    document.getElementById('prod-notes').value=p.notes||'';
+  } else {
+    document.getElementById('prod-name').value='';
+    document.getElementById('prod-sku').value='';
+    document.getElementById('prod-cat').value='';
+    document.getElementById('prod-price').value='';
+    document.getElementById('prod-unit').value='/cs';
+    document.getElementById('prod-status').value='active';
+    document.getElementById('prod-desc').value='';
+    document.getElementById('prod-notes').value='';
+  }
+  document.getElementById('modal-product').classList.remove('hidden');
+}
+function editProduct(i){openProductModal(i);}
+
+function saveProduct(){
+  const name=document.getElementById('prod-name').value.trim();
+  const sku=document.getElementById('prod-sku').value.trim();
+  const cat=document.getElementById('prod-cat').value;
+  const price=document.getElementById('prod-price').value.trim();
+  const unit=document.getElementById('prod-unit').value.trim()||'/cs';
+  const status=document.getElementById('prod-status').value;
+  const desc=document.getElementById('prod-desc').value.trim();
+  const notes=document.getElementById('prod-notes').value.trim();
+  if(!name||!sku||!cat||!price){showToast('Please fill in all required fields.','error');return;}
+  const idx=document.getElementById('prod-edit-idx').value;
+  if(idx!==''){
+    products[parseInt(idx)]={name,sku,category:cat,price,unit,status,desc,notes};
+    showToast('Product updated successfully!','success');
+    addActivity(`Product <b>${name}</b> updated`,'blue');
+  } else {
+    products.push({name,sku,category:cat,price,unit,status,desc,notes});
+    showToast('Product added successfully!','success');
+    addActivity(`New product <b>${name}</b> added to ${cat}`,'green');
+  }
+  closeModal('modal-product');
+  renderProducts();
+  renderPricing();
+  renderCategories();
+  updateCounts();
+}
+
+function toggleProduct(i){
+  products[i].status=products[i].status==='active'?'inactive':'active';
+  showToast(`Product ${products[i].status==='active'?'activated':'deactivated'}.`,'success');
+  addActivity(`Product <b>${products[i].name}</b> ${products[i].status}`,'orange');
+  renderProducts();updateCounts();
+}
+function deleteProduct(i){
+  if(!confirm(`Delete "${products[i].name}"? This cannot be undone.`))return;
+  const name=products[i].name;
+  products.splice(i,1);
+  showToast('Product deleted.','success');
+  addActivity(`Product <b>${name}</b> deleted`,'red');
+  renderProducts();renderPricing();renderCategories();updateCounts();
+}
+
+// ══════════════════════════════════════
+// CATEGORIES
+// ══════════════════════════════════════
+const categoryIcons={'Earth Friendly':'ti-leaf','Cutlery':'ti-tools-kitchen','Cups & Lids':'ti-cup','Hinged Lid':'ti-box','Plates, Bowls & Trays':'ti-circle','Napkins':'ti-layers-intersect','Bags':'ti-shopping-bag','Food Wraps':'ti-package','Disposable Apparel':'ti-shirt','Janitorial':'ti-wash','Other Products':'ti-dots-circle-horizontal','Boxes, Circles & Pads':'ti-archive','Black Containers':'ti-square','Aluminum Foil Pans':'ti-separator-horizontal','Catering Trays':'ti-table','Containers':'ti-layout-2'};
+
+function renderCategories(){
+  const cats={};
+  products.forEach(p=>{cats[p.category]=(cats[p.category]||0)+1;});
+  const allCats=Object.keys(categoryIcons);
+  allCats.forEach(c=>{if(!cats[c])cats[c]=0;});
+  const grid=document.getElementById('cat-admin-grid');
+  grid.innerHTML=allCats.map(c=>`
+    <div class="cat-admin-card">
+      <div class="cat-admin-ico"><i class="ti ${categoryIcons[c]||'ti-folder'}"></i></div>
+      <div class="cat-admin-info">
+        <div class="cat-name">${c}</div>
+        <div class="cat-count">${cats[c]||0} products</div>
+      </div>
+      <button class="cat-manage-btn" onclick="showSection('products');setTimeout(()=>{document.getElementById('prod-cat-filter').value='${c}';filterProducts();},100)">Manage</button>
+    </div>
+  `).join('');
+}
+
+function openAddCatModal(){document.getElementById('modal-cat').classList.remove('hidden');}
+function saveCat(){
+  const name=document.getElementById('cat-name').value.trim();
+  if(!name){showToast('Category name required.','error');return;}
+  showToast(`Category "${name}" added!`,'success');
+  closeModal('modal-cat');
+}
+
+// ══════════════════════════════════════
+// PRICING
+// ══════════════════════════════════════
+function renderPricing(list){
+  const data=list||products;
+  const tbody=document.getElementById('price-tbody');
+  tbody.innerHTML=data.map((p,i)=>{
+    const idx=list?products.indexOf(p):i;
+    return `<tr>
+      <td style="font-weight:600;">${p.name}</td>
+      <td><span class="sku-badge">${p.sku}</span></td>
+      <td>${p.category}</td>
+      <td><span class="price-tag">$${p.price}${p.unit}</span></td>
+      <td><div class="input-prefix" style="max-width:130px;"><span>$</span><input type="number" step="0.01" value="${p.price}" id="price-input-${idx}" style="width:70px;" onchange="markPriceChanged(${idx},this.value)"/></div></td>
+      <td><input type="text" value="${p.unit}" id="unit-input-${idx}" style="border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;width:60px;background:var(--bg);outline:none;" placeholder="/cs"/></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterPricing(){
+  const q=document.getElementById('price-search').value.toLowerCase();
+  const cat=document.getElementById('price-cat-filter').value;
+  const filtered=products.filter(p=>{
+    return(!q||p.name.toLowerCase().includes(q)||p.sku.toLowerCase().includes(q))&&(!cat||p.category===cat);
+  });
+  renderPricing(filtered);
+}
+
+function markPriceChanged(idx,val){products[idx].price=parseFloat(val).toFixed(2);}
+
+function savePricing(){
+  products.forEach((p,i)=>{
+    const inp=document.getElementById('price-input-'+i);
+    const unitInp=document.getElementById('unit-input-'+i);
+    if(inp)p.price=parseFloat(inp.value).toFixed(2);
+    if(unitInp)p.unit=unitInp.value||'/cs';
+  });
+  showToast('All prices saved successfully!','success');
+  addActivity('Bulk price update saved for all products','blue');
+  renderProducts();
+}
+
+function applyBulkPrice(){document.getElementById('modal-bulk').classList.remove('hidden');}
+function applyBulkPriceConfirm(){
+  const cat=document.getElementById('bulk-cat').value;
+  const type=document.getElementById('bulk-type').value;
+  const amount=parseFloat(document.getElementById('bulk-amount').value)||0;
+  products.forEach(p=>{
+    if(cat!=='all'&&p.category!==cat)return;
+    let price=parseFloat(p.price);
+    if(type==='increase')price=price*(1+amount/100);
+    else if(type==='decrease')price=price*(1-amount/100);
+    else if(type==='flat-increase')price+=amount;
+    else if(type==='flat-decrease')price=Math.max(0,price-amount);
+    p.price=price.toFixed(2);
+  });
+  closeModal('modal-bulk');
+  showToast(`Bulk price adjustment applied!`,'success');
+  addActivity(`Bulk price ${type} of ${amount} applied to ${cat==='all'?'all products':cat}`,'orange');
+  renderPricing();renderProducts();
+}
+
+// ══════════════════════════════════════
+// PROMOTIONS
+// ══════════════════════════════════════
+function renderPromos(){
+  const grid=document.getElementById('promo-grid');
+  if(!promotions.length){grid.innerHTML=`<div class="empty-state"><i class="ti ti-rosette-discount-off"></i><p>No promotions yet. Create your first one!</p></div>`;return;}
+  grid.innerHTML=promotions.map((p,i)=>{
+    const typeIcon={'pct':'ti-percentage','flat':'ti-currency-dollar','free':'ti-truck'}[p.type]||'ti-tag';
+    const dispVal=p.type==='pct'?`${p.value}% OFF`:p.type==='flat'?`$${p.value} OFF`:'FREE DEL';
+    return `<div class="promo-card">
+      <div class="promo-card-top">
+        <div class="promo-ico type-${p.type}"><i class="ti ${typeIcon}"></i></div>
+        <div class="promo-info">
+          <div class="promo-name">${p.name}</div>
+          <span class="promo-code">${p.code}</span>
+          <div style="margin-top:6px;font-size:11px;color:var(--gray);">Min: $${p.min||'0'} &nbsp;•&nbsp; ${p.uses==='0'||!p.uses?'Unlimited':'Max '+p.uses+' uses'}</div>
+          ${p.end?`<div style="font-size:11px;color:var(--gray);margin-top:2px;">Expires: ${p.end}</div>`:''}
+        </div>
+        <div class="promo-value">${dispVal}</div>
+      </div>
+      <div class="promo-card-bot">
+        <div class="promo-meta"><span class="status-${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></div>
+        <div class="promo-actions">
+          <button class="action-btn ab-edit" onclick="editPromo(${i})"><i class="ti ti-edit"></i>Edit</button>
+          <button class="action-btn ab-toggle" onclick="togglePromo(${i})">${p.active?'Pause':'Activate'}</button>
+          <button class="action-btn ab-del" onclick="deletePromo(${i})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddPromo(idx){
+  document.getElementById('promo-edit-idx').value=idx!==undefined?idx:'';
+  document.getElementById('modal-promo-title').textContent=idx!==undefined?'Edit Promotion':'New Promotion';
+  if(idx!==undefined){
+    const p=promotions[idx];
+    document.getElementById('promo-name').value=p.name;
+    document.getElementById('promo-code').value=p.code;
+    document.getElementById('promo-type').value=p.type;
+    document.getElementById('promo-val').value=p.value;
+    document.getElementById('promo-min').value=p.min||'';
+    document.getElementById('promo-uses').value=p.uses||'';
+    document.getElementById('promo-start').value=p.start||'';
+    document.getElementById('promo-end').value=p.end||'';
+    document.getElementById('promo-applies').value=p.applies||'all';
+    document.getElementById('promo-desc').value=p.desc||'';
+    document.getElementById('promo-active').checked=p.active;
+  } else {
+    ['promo-name','promo-code','promo-val','promo-min','promo-uses','promo-start','promo-end','promo-desc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('promo-type').value='pct';
+    document.getElementById('promo-applies').value='all';
+    document.getElementById('promo-active').checked=true;
+  }
+  updatePromoTypeUI();
+  document.getElementById('modal-promo').classList.remove('hidden');
+}
+function editPromo(i){openAddPromo(i);}
+
+function updatePromoTypeUI(){
+  const type=document.getElementById('promo-type').value;
+  const vg=document.getElementById('promo-val-group');
+  const vp=document.getElementById('promo-val-prefix');
+  if(type==='free'){vg.style.opacity='.4';document.getElementById('promo-val').value='0';vp.textContent='$';}
+  else{vg.style.opacity='1';vp.textContent=type==='pct'?'%':'$';}
+}
+
+function savePromo(){
+  const name=document.getElementById('promo-name').value.trim();
+  const code=document.getElementById('promo-code').value.trim().toUpperCase();
+  const type=document.getElementById('promo-type').value;
+  const value=document.getElementById('promo-val').value.trim();
+  if(!name||!code){showToast('Name and code are required.','error');return;}
+  const promo={
+    name,code,type,value,
+    min:document.getElementById('promo-min').value,
+    uses:document.getElementById('promo-uses').value,
+    start:document.getElementById('promo-start').value,
+    end:document.getElementById('promo-end').value,
+    applies:document.getElementById('promo-applies').value,
+    desc:document.getElementById('promo-desc').value,
+    active:document.getElementById('promo-active').checked,
+  };
+  const idx=document.getElementById('promo-edit-idx').value;
+  if(idx!==''){promotions[parseInt(idx)]=promo;showToast('Promotion updated!','success');}
+  else{promotions.push(promo);showToast('Promotion created!','success');addActivity(`New promotion <b>${code}</b> created`,'blue');}
+  closeModal('modal-promo');
+  renderPromos();updateCounts();
+}
+
+function togglePromo(i){
+  promotions[i].active=!promotions[i].active;
+  showToast(`Promotion ${promotions[i].active?'activated':'paused'}.`,'success');
+  renderPromos();updateCounts();
+}
+function deletePromo(i){
+  if(!confirm('Delete this promotion?'))return;
+  promotions.splice(i,1);
+  showToast('Promotion deleted.','success');
+  renderPromos();updateCounts();
+}
+
+// ══════════════════════════════════════
+// BANNER
+// ══════════════════════════════════════
+function saveBanner(){
+  showToast('Banner saved & live on site!','success');
+  addActivity('Site banner updated','orange');
+}
+function previewBanner(){
+  const b1=document.getElementById('ban1').value;
+  const b2=document.getElementById('ban2').value;
+  document.getElementById('banner-preview').innerHTML=`
+    <span style="color:#ccc;font-size:11px;display:flex;align-items:center;gap:5px;"><span style="color:var(--red);font-size:14px;">●</span>${b1}</span>
+    <span style="color:#ccc;font-size:11px;display:flex;align-items:center;gap:5px;"><span style="color:var(--red);font-size:14px;">●</span>${b2}</span>
+  `;
+  showToast('Banner preview updated.','success');
+}
+
+// ══════════════════════════════════════
+// ADMIN USERS
+// ══════════════════════════════════════
+function renderAdmins(){
+  const tbody=document.getElementById('admins-tbody');
+  tbody.innerHTML=adminUsers.map((a,i)=>`
+    <tr>
+      <td style="font-weight:600;">${a.name}</td>
+      <td><span class="sku-badge">@${a.username}</span></td>
+      <td>${a.email}</td>
+      <td><span class="status-active">${a.role}</span></td>
+      <td style="color:var(--gray);font-size:12px;">${a.lastLogin}</td>
+      <td><div class="action-btns">
+        <button class="action-btn ab-edit" onclick="showToast('Edit admin coming soon','success')"><i class="ti ti-edit"></i>Edit</button>
+        ${i>0?`<button class="action-btn ab-del" onclick="deleteAdmin(${i})"><i class="ti ti-trash"></i></button>`:'<span style="font-size:11px;color:var(--gray);">Protected</span>'}
+      </div></td>
+    </tr>
+  `).join('');
+}
+function openAddAdminModal(){document.getElementById('modal-admin').classList.remove('hidden');}
+function saveAdmin(){
+  const name=document.getElementById('new-admin-name').value.trim();
+  const user=document.getElementById('new-admin-user').value.trim();
+  const email=document.getElementById('new-admin-email').value.trim();
+  const role=document.getElementById('new-admin-role').value;
+  const pass=document.getElementById('new-admin-pass').value.trim();
+  if(!name||!user||!email||!pass){showToast('All fields required.','error');return;}
+  if(pass.length<8){showToast('Password must be 8+ characters.','error');return;}
+  adminUsers.push({name,username:user,email,role,lastLogin:'Never'});
+  closeModal('modal-admin');
+  renderAdmins();
+  showToast(`Admin "${name}" added.`,'success');
+}
+function deleteAdmin(i){
+  if(!confirm(`Remove admin "${adminUsers[i].name}"?`))return;
+  adminUsers.splice(i,1);renderAdmins();showToast('Admin removed.','success');
+}
+
+// ══════════════════════════════════════
+// SITE APPEARANCE
+// ══════════════════════════════════════
+let bannerBgColor = '#1c1c1c';
+
+function livePreview(){
+  const badge   = document.getElementById('ap-logo-badge')?.value || 'DFW';
+  const name    = document.getElementById('ap-logo-name')?.value  || 'DISPOSABLE';
+  const sub     = document.getElementById('ap-logo-sub')?.value   || 'PACKAGING & SUPPLY CO.';
+  const hColor  = document.getElementById('ap-header-color')?.value || '#c8181e';
+  const bBg     = document.getElementById('ap-badge-color')?.value  || '#ffffff';
+  const bTxt    = document.getElementById('ap-badge-text-color')?.value || '#c8181e';
+  const phone   = document.getElementById('ap-phone')?.value || '(469) 927-9927';
+  const showPh  = document.getElementById('ap-show-phone')?.checked;
+  const n1 = document.getElementById('nav-l1')?.value || 'Home';
+  const n2 = document.getElementById('nav-l2')?.value || 'Custom Products';
+  const n3 = document.getElementById('nav-l3')?.value || 'Delivery';
+  const n4 = document.getElementById('nav-l4')?.value || 'Contact Us';
+  const n5 = document.getElementById('nav-l5')?.value || 'Hours';
+  const n6 = document.getElementById('nav-l6')?.value || 'About Us';
+  const n7 = document.getElementById('nav-l7')?.value || 'Returns';
+
+  // Update preview elements
+  const prevHeader = document.getElementById('prev-header');
+  if(prevHeader) prevHeader.style.background = hColor;
+  const prevNav = document.getElementById('prev-nav');
+  if(prevNav) prevNav.style.background = hColor;
+
+  const prevBadge = document.getElementById('prev-logo-badge');
+  if(prevBadge){ prevBadge.textContent = badge; prevBadge.style.background = bBg; prevBadge.style.color = bTxt; }
+
+  const prevL1 = document.getElementById('prev-logo-l1');
+  if(prevL1) prevL1.textContent = name;
+  const prevL2 = document.getElementById('prev-logo-l2');
+  if(prevL2) prevL2.textContent = sub;
+
+  const prevPh = document.getElementById('prev-phone');
+  if(prevPh){ prevPh.textContent = phone; prevPh.style.display = showPh ? 'block' : 'none'; }
+
+  const navIds = ['prev-nav-home','prev-nav-custom','prev-nav-delivery','prev-nav-contact','prev-nav-hours','prev-nav-about','prev-nav-returns'];
+  const navVals = [n1,n2,n3,n4,n5,n6,n7];
+  navIds.forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.textContent = navVals[i]; });
+
+  // Sync hex input
+  document.getElementById('ap-header-color-hex').value = hColor;
+  document.getElementById('ap-badge-color-hex').value  = bBg;
+  document.getElementById('ap-badge-text-hex').value   = bTxt;
+
+  // Update config output
+  updateConfigOutput();
+}
+
+function syncColor(colorId, hexId){
+  const hex = document.getElementById(hexId)?.value;
+  if(hex && /^#[0-9A-Fa-f]{6}$/.test(hex)){
+    const el = document.getElementById(colorId);
+    if(el) el.value = hex;
+  }
+}
+
+function setHeaderColor(color){
+  const hc = document.getElementById('ap-header-color');
+  const hh = document.getElementById('ap-header-color-hex');
+  if(hc) hc.value = color;
+  if(hh) hh.value = color;
+  // Also auto-set badge text to match header for contrast
+  const badgeTxt = document.getElementById('ap-badge-text-color');
+  const badgeTxtH = document.getElementById('ap-badge-text-hex');
+  if(badgeTxt){ badgeTxt.value = color; }
+  if(badgeTxtH){ badgeTxtH.value = color; }
+  livePreview();
+}
+
+function setBannerBg(color, label){
+  bannerBgColor = color;
+  const lbl = document.getElementById('banner-bg-label');
+  if(lbl) lbl.textContent = 'Currently: ' + label;
+  showToast('Info banner background set to ' + label,'success');
+}
+
+function updateConfigOutput(){
+  const badge  = document.getElementById('ap-logo-badge')?.value || 'DFW';
+  const name   = document.getElementById('ap-logo-name')?.value  || 'DISPOSABLE';
+  const sub    = document.getElementById('ap-logo-sub')?.value   || 'PACKAGING & SUPPLY CO.';
+  const hColor = document.getElementById('ap-header-color')?.value || '#c8181e';
+  const bBg    = document.getElementById('ap-badge-color')?.value  || '#ffffff';
+  const bTxt   = document.getElementById('ap-badge-text-color')?.value || '#c8181e';
+  const phone  = document.getElementById('ap-phone')?.value || '(469) 927-9927';
+  const title  = document.getElementById('ap-page-title')?.value || 'DFW Disposable';
+  const footer = document.getElementById('ap-footer-name')?.value || 'DFW Disposable';
+  const n1=document.getElementById('nav-l1')?.value||'Home';
+  const n2=document.getElementById('nav-l2')?.value||'Custom Products';
+  const n3=document.getElementById('nav-l3')?.value||'Delivery';
+  const n4=document.getElementById('nav-l4')?.value||'Contact Us';
+  const n5=document.getElementById('nav-l5')?.value||'Hours';
+  const n6=document.getElementById('nav-l6')?.value||'About Us';
+  const n7=document.getElementById('nav-l7')?.value||'Returns';
+
+  const out = document.getElementById('config-output');
+  if(out) out.textContent =
+`/* DFW Disposable — Site Appearance Config */
+/* Generated: ${new Date().toLocaleString()} */
+
+/* ── Colors ── */
+--header-color:        ${hColor};
+--logo-badge-bg:       ${bBg};
+--logo-badge-text:     ${bTxt};
+
+/* ── Logo & Name ── */
+--logo-badge:          "${badge}";
+--logo-name:           "${name}";
+--logo-subtitle:       "${sub}";
+--page-title:          "${title}";
+--footer-name:         "${footer}";
+
+/* ── Phone ── */
+--header-phone:        "${phone}";
+
+/* ── Nav Labels ── */
+--nav-1: "${n1}"; --nav-2: "${n2}"; --nav-3: "${n3}";
+--nav-4: "${n4}"; --nav-5: "${n5}"; --nav-6: "${n6}";
+--nav-7: "${n7}";`;
+}
+
+function previewAppearance(){
+  livePreview();
+  showToast('Preview updated in the header preview above!','success');
+}
+
+function saveAppearance(){
+  livePreview();
+  const badge  = document.getElementById('ap-logo-badge')?.value || 'DFW';
+  const name   = document.getElementById('ap-logo-name')?.value  || 'DISPOSABLE';
+  const hColor = document.getElementById('ap-header-color')?.value || '#c8181e';
+  const phone  = document.getElementById('ap-phone')?.value || '(469) 927-9927';
+  // Also update the admin sidebar to reflect the brand
+  const sbBadge = document.querySelector('.sb-logo .badge');
+  if(sbBadge) sbBadge.textContent = badge;
+
+  addActivity(`Site appearance updated — logo: <b>${badge} ${name}</b>, color: <b>${hColor}</b>`,'blue');
+  showToast('Appearance saved! Click "View Site" to see live changes.','success');
+}
+
+function copyConfig(){
+  const out = document.getElementById('config-output')?.textContent || '';
+  navigator.clipboard.writeText(out).then(()=>showToast('Config copied to clipboard!','success')).catch(()=>showToast('Copy failed — select and copy manually.','error'));
+}
+
+function saveBusinessInfo(){
+  const name  = document.getElementById('s-bizname')?.value;
+  const phone = document.getElementById('s-phone')?.value;
+  addActivity(`Business info updated — <b>${name}</b>`,'green');
+  showToast('Business information saved!','success');
+}
+
+function saveDeliverySettings(){
+  const min = document.getElementById('s-delmin')?.value;
+  addActivity(`Delivery settings updated — free delivery min: <b>$${min}</b>`,'orange');
+  showToast('Delivery settings saved!','success');
+}
+
+// ── Initialize appearance preview on load
+function initAppearance(){ livePreview(); }
+function addActivity(text,color){
+  const log=document.getElementById('activity-log');
+  const entry=document.createElement('div');entry.className='log-item';
+  entry.innerHTML=`<div class="log-dot ${color}"></div><div><div class="log-text">${text}</div><div class="log-time">Just now</div></div>`;
+  log.insertBefore(entry,log.firstChild);
+  if(log.children.length>10)log.removeChild(log.lastChild);
+}
+
+// ══════════════════════════════════════
+// MODALS / TOAST
+// ══════════════════════════════════════
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.add('hidden');});
+});
+
+let toastTimer;
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  const ic=document.getElementById('toast-icon');
+  document.getElementById('toast-msg').textContent=msg;
+  t.className='toast show '+(type==='error'?'error':'success');
+  ic.className=type==='error'?'ti ti-alert-circle':'ti ti-check';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ══════════════════════════════════════
+// HERO SLIDER EDITOR
+// ══════════════════════════════════════
+const heroGradients = [
+  'linear-gradient(135deg,#1c1c1c,#3a0a0c)',
+  'linear-gradient(135deg,#0a1628,#1d3a6a)',
+  'linear-gradient(135deg,#0a2010,#1a5c30)',
+  'linear-gradient(135deg,#1a0a28,#4a1a6e)',
+  'linear-gradient(135deg,#1c1008,#6e3a0a)',
+  'linear-gradient(135deg,#0a1818,#0a4a4a)',
+  'linear-gradient(135deg,#1a1208,#5a4a0a)',
+  'linear-gradient(135deg,#180818,#4a0a3a)',
+];
+
+let heroSlides = [
+  {title:'Your <span>\#1 Source</span> for Disposable Products',badge:'BRAND',sub:'Serving restaurants, bakeries, schools & businesses across the DFW Metroplex since 1993.',tag1:'🏪 Will-Call Available',tag2:'🚚 Free DFW Delivery $150+',tag3:'📦 Bulk Pricing',btn1:'Call Us Now',btn1action:'contact',btn2:'Delivery Info',btn2action:'delivery',bg:'gradient',gradIdx:0,accent:'#ff8888',img:''},
+  {title:'<span>Free Delivery</span> Across the DFW Metroplex',badge:'FREE DELIVERY',sub:'Order $150 or more and we deliver straight to your business — Dallas, Fort Worth, Arlington & beyond.',tag1:'📍 Dallas & Fort Worth',tag2:'📍 Arlington & Irving',tag3:'📍 Plano & Frisco',btn1:'View Delivery Zones',btn1action:'delivery',btn2:'Get a Quote',btn2action:'contact',bg:'gradient',gradIdx:1,accent:'#88bbff',img:''},
+  {title:'Go <span>Eco-Friendly</span> Without Compromise',badge:'ECO PRODUCTS',sub:'Compostable plates, biodegradable bags, bamboo cutlery & more at prices that make sense.',tag1:'🌿 Compostable',tag2:'♻️ Biodegradable',tag3:'🌱 Bamboo Options',btn1:'Shop Eco Products',btn1action:'cat-earth-friendly',btn2:'Get Bulk Pricing',btn2action:'contact',bg:'gradient',gradIdx:2,accent:'#88ffbb',img:''},
+  {title:'Restaurant & Business <span>Accounts Available</span>',badge:'RESTAURANT DEAL',sub:'Sign up for a restaurant account and unlock 5% off every order, weekly standing orders & priority delivery.',tag1:'💰 5% Account Discount',tag2:'🗓️ Weekly Orders',tag3:'🚚 Priority Delivery',btn1:'Open Restaurant Account',btn1action:'restaurant',btn2:'Talk to Us',btn2action:'contact',bg:'gradient',gradIdx:3,accent:'#cc88ff',img:''},
+  {title:'Custom Printed <span>Cups, Bags & Boxes</span>',badge:'CUSTOM PRODUCTS',sub:'Put your logo on cups, bags, pizza boxes & more. Low minimums, fast turnaround, professional design.',tag1:'🖨️ Custom Printing',tag2:'📦 Low Minimums',tag3:'⚡ Fast Turnaround',btn1:'Get Custom Quote',btn1action:'custom',btn2:'Email Us',btn2action:'contact',bg:'gradient',gradIdx:4,accent:'#ffcc88',img:''},
+];
+let heroEditIdx = -1;
+let heroCurrentGrad = 0;
+let heroCurrentBgMode = 'gradient';
+
+function renderHeroSlideList() {
+  const list = document.getElementById('hero-slide-list');
+  if(!list) return;
+  list.innerHTML = heroSlides.map((s,i) => {
+    const bgStyle = s.bg==='image' && s.img ? `background:url('${s.img}') center/cover no-repeat` : `background:${heroGradients[s.gradIdx||0]}`;
+    const title = s.title.replace(/<[^>]+>/g,'').substring(0,28) + (s.title.length>28?'…':'');
+    return `<div class="slide-card ${heroEditIdx===i?'active-card':''}" onclick="heroSelectSlide(${i})">
+      <div class="slide-card-thumb" style="${bgStyle};">
+        <div class="thumb-overlay"><i class="ti ti-layout-board" style="font-size:22px;color:rgba(255,255,255,.5);"></i></div>
+      </div>
+      <div class="slide-card-info">
+        <div class="slide-card-title">Slide ${i+1}: ${title}</div>
+        <div class="slide-card-actions">
+          <button class="sca-btn" onclick="event.stopPropagation();heroMoveSlide(${i},-1)" title="Move up"><i class="ti ti-arrow-up"></i></button>
+          <button class="sca-btn" onclick="event.stopPropagation();heroMoveSlide(${i},1)" title="Move down"><i class="ti ti-arrow-down"></i></button>
+          <button class="sca-btn del" onclick="event.stopPropagation();heroDeleteSlide(${i})" title="Delete"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function heroSelectSlide(i) {
+  heroEditIdx = i;
+  const s = heroSlides[i];
+  document.getElementById('hero-edit-no-selection').style.display = 'none';
+  document.getElementById('hero-edit-form').style.display = 'block';
+  document.getElementById('hero-edit-idx').value = i;
+  document.getElementById('he-title').value = s.title.replace(/<[^>]+>/g,'');
+  document.getElementById('he-badge').value = s.badge||'';
+  document.getElementById('he-sub').value = s.sub||'';
+  document.getElementById('he-tag1').value = s.tag1||'';
+  document.getElementById('he-tag2').value = s.tag2||'';
+  document.getElementById('he-tag3').value = s.tag3||'';
+  document.getElementById('he-btn1').value = s.btn1||'';
+  document.getElementById('he-btn1-action').value = s.btn1action||'contact';
+  document.getElementById('he-btn2').value = s.btn2||'';
+  document.getElementById('he-btn2-action').value = s.btn2action||'delivery';
+  document.getElementById('he-accent').value = s.accent||'#ff8888';
+  document.getElementById('he-accent-hex').value = s.accent||'#ff8888';
+  heroCurrentGrad = s.gradIdx||0;
+  heroCurrentBgMode = s.bg||'gradient';
+  setHeroBgMode(heroCurrentBgMode);
+  // highlight selected swatch
+  document.querySelectorAll('#he-grad-swatches .color-swatch').forEach((sw,idx)=>{
+    sw.classList.toggle('selected', idx===heroCurrentGrad);
+  });
+  heroLiveUpdate();
+  renderHeroSlideList();
+}
+
+function heroLiveUpdate() {
+  const title  = document.getElementById('he-title')?.value||'';
+  const badge  = document.getElementById('he-badge')?.value||'';
+  const sub    = document.getElementById('he-sub')?.value||'';
+  const tag1   = document.getElementById('he-tag1')?.value||'';
+  const tag2   = document.getElementById('he-tag2')?.value||'';
+  const tag3   = document.getElementById('he-tag3')?.value||'';
+  const accent = document.getElementById('he-accent')?.value||'#ff8888';
+  const preview = document.getElementById('hero-live-preview');
+  if(!preview) return;
+  if(heroCurrentBgMode==='gradient') preview.style.background = heroGradients[heroCurrentGrad];
+  document.getElementById('hprev-badge').innerHTML = `<i class="ti ti-tag" style="font-size:11px;"></i> ${badge||'OFFER'}`;
+  document.getElementById('hprev-title').innerHTML = title.replace(/\*(.*?)\*/g,`<span style="color:${accent}">$1</span>`);
+  document.getElementById('hprev-sub').textContent = sub;
+  const tagsEl = document.getElementById('hprev-tags');
+  tagsEl.innerHTML = [tag1,tag2,tag3].filter(Boolean).map(t=>`<span class="sp-tag">${t}</span>`).join('');
+}
+
+function syncHeroAccent() {
+  const hex = document.getElementById('he-accent-hex')?.value;
+  if(hex && /^#[0-9A-Fa-f]{6}$/.test(hex)) {
+    document.getElementById('he-accent').value = hex;
+    heroLiveUpdate();
+  }
+}
+
+function setHeroBgMode(mode) {
+  heroCurrentBgMode = mode;
+  document.getElementById('he-gradient-opts').style.display = mode==='gradient'?'block':'none';
+  document.getElementById('he-image-opts').style.display = mode==='image'?'block':'none';
+  document.getElementById('he-mode-gradient').className = 'tb-btn' + (mode==='gradient'?' tb-btn-red':'');
+  document.getElementById('he-mode-image').className = 'tb-btn' + (mode==='image'?' tb-btn-red':'');
+}
+
+function selectHeroGrad(idx, el) {
+  heroCurrentGrad = idx;
+  document.querySelectorAll('#he-grad-swatches .color-swatch').forEach(sw=>sw.classList.remove('selected'));
+  el.classList.add('selected');
+  heroLiveUpdate();
+}
+
+function handleHeroImgUpload(input) {
+  if(!input.files||!input.files[0]) return;
+  processHeroImg(input.files[0]);
+}
+function handleHeroImgDrop(event) {
+  event.preventDefault();
+  document.getElementById('he-img-dropzone').classList.remove('drag-over');
+  if(event.dataTransfer.files[0]) processHeroImg(event.dataTransfer.files[0]);
+}
+function processHeroImg(file) {
+  if(file.size > 5*1024*1024) { showToast('Image too large (max 5MB)','error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const src = e.target.result;
+    const strip = document.getElementById('he-img-strip');
+    strip.innerHTML = `<div class="img-preview-item selected"><img src="${src}" /><button class="ipi-del" onclick="clearHeroImg()"><i class="ti ti-x"></i></button></div>`;
+    const preview = document.getElementById('hero-live-preview');
+    if(preview) { preview.style.background = `url('${src}') center/cover no-repeat`; preview.style.backgroundBlendMode='overlay'; }
+    const imgWrap = document.getElementById('hprev-img-wrap');
+    if(imgWrap) imgWrap.innerHTML = `<img src="${src}" class="sp-img" style="width:90px;height:90px;border-radius:8px;object-fit:cover;opacity:.7;"/>`;
+    if(heroEditIdx>=0) heroSlides[heroEditIdx].img = src;
+    document.getElementById('he-img-dropzone').style.display='none';
+    showToast('Banner image uploaded!','success');
+  };
+  reader.readAsDataURL(file);
+}
+function clearHeroImg() {
+  document.getElementById('he-img-strip').innerHTML='';
+  document.getElementById('he-img-dropzone').style.display='block';
+  if(heroEditIdx>=0) heroSlides[heroEditIdx].img='';
+  const preview = document.getElementById('hero-live-preview');
+  if(preview) preview.style.background = heroGradients[heroCurrentGrad];
+}
+
+function saveHeroSlide() {
+  if(heroEditIdx<0) return;
+  const s = heroSlides[heroEditIdx];
+  const accent = document.getElementById('he-accent').value;
+  const rawTitle = document.getElementById('he-title').value;
+  s.title   = rawTitle;
+  s.badge   = document.getElementById('he-badge').value;
+  s.sub     = document.getElementById('he-sub').value;
+  s.tag1    = document.getElementById('he-tag1').value;
+  s.tag2    = document.getElementById('he-tag2').value;
+  s.tag3    = document.getElementById('he-tag3').value;
+  s.btn1    = document.getElementById('he-btn1').value;
+  s.btn1action = document.getElementById('he-btn1-action').value;
+  s.btn2    = document.getElementById('he-btn2').value;
+  s.btn2action = document.getElementById('he-btn2-action').value;
+  s.accent  = accent;
+  s.bg      = heroCurrentBgMode;
+  s.gradIdx = heroCurrentGrad;
+  renderHeroSlideList();
+  addActivity(`Hero slide ${heroEditIdx+1} updated: <b>${s.title.replace(/<[^>]+>/g,'').substring(0,30)}</b>`,'blue');
+  showToast('Hero slide saved!','success');
+}
+
+function deleteHeroSlide() {
+  if(heroEditIdx<0||heroSlides.length<=1) { showToast('Must have at least 1 slide.','error'); return; }
+  if(!confirm('Delete this hero slide?')) return;
+  heroSlides.splice(heroEditIdx,1);
+  heroEditIdx=-1;
+  document.getElementById('hero-edit-no-selection').style.display='block';
+  document.getElementById('hero-edit-form').style.display='none';
+  renderHeroSlideList();
+  showToast('Slide deleted.','success');
+}
+
+function heroDeleteSlide(i) {
+  if(heroSlides.length<=1) { showToast('Must have at least 1 slide.','error'); return; }
+  if(!confirm('Delete this hero slide?')) return;
+  heroSlides.splice(i,1);
+  if(heroEditIdx===i) { heroEditIdx=-1; document.getElementById('hero-edit-no-selection').style.display='block'; document.getElementById('hero-edit-form').style.display='none'; }
+  else if(heroEditIdx>i) heroEditIdx--;
+  renderHeroSlideList();
+  showToast('Slide deleted.','success');
+}
+
+function heroMoveSlide(i, dir) {
+  const newIdx = i+dir;
+  if(newIdx<0||newIdx>=heroSlides.length) return;
+  [heroSlides[i],heroSlides[newIdx]] = [heroSlides[newIdx],heroSlides[i]];
+  if(heroEditIdx===i) heroEditIdx=newIdx;
+  else if(heroEditIdx===newIdx) heroEditIdx=i;
+  renderHeroSlideList();
+}
+
+function heroEditorAddSlide() {
+  showSection('hero-editor');
+  heroSlides.push({title:'New Slide Title',badge:'NEW',sub:'Add your subtitle here.',tag1:'✨ Tag 1',tag2:'📦 Tag 2',tag3:'🚚 Tag 3',btn1:'Learn More',btn1action:'contact',btn2:'Shop Now',btn2action:'home',bg:'gradient',gradIdx:Math.floor(Math.random()*8),accent:'#ff8888',img:''});
+  heroSelectSlide(heroSlides.length-1);
+  renderHeroSlideList();
+  showToast('New slide added! Edit it now.','success');
+}
+
+function saveHeroSlider() {
+  addActivity(`Hero slider saved — ${heroSlides.length} slides`,'green');
+  showToast(`Hero slider saved with ${heroSlides.length} slides!`,'success');
+}
+
+// ══════════════════════════════════════
+// PROMO SLIDER EDITOR
+// ══════════════════════════════════════
+let promoSlidesEditor = [
+  {badge:'LIMITED OFFER',text:'🎉 10% OFF all Earth Friendly products this week! Use code ECO10',icon:'ti-rosette-discount',img:''},
+  {badge:'FREE DELIVERY',text:'🚚 Free delivery across DFW Metroplex on orders $150+',icon:'ti-truck',img:''},
+  {badge:'RESTAURANT DEAL',text:'🍽️ Restaurant accounts get 5% off every order — Sign up today!',icon:'ti-building-restaurant',img:''},
+  {badge:'BULK SAVINGS',text:'📦 Order $300+ and save 15% — use code BULK15 at checkout',icon:'ti-package',img:''},
+  {badge:'NEW ARRIVALS',text:'✨ New Black Container line now in stock — perfect for upscale presentations',icon:'ti-star',img:''},
+  {badge:'ECO PRODUCTS',text:'🌿 Compostable & biodegradable options available — go green with DFW Disposable',icon:'ti-leaf',img:''},
+];
+let promoEditIdx = -1;
+
+function renderPromoSlideList() {
+  const list = document.getElementById('promo-slide-list');
+  if(!list) return;
+  list.innerHTML = promoSlidesEditor.map((s,i) => `
+    <div class="slide-card ${promoEditIdx===i?'active-card':''}" onclick="promoSelectSlide(${i})">
+      <div class="slide-card-thumb" style="background:linear-gradient(135deg,#1c1c1c,#2a2a2a);${s.img ? 'background:url(' + s.img + ') center/cover no-repeat;' : ''}">
+        <div class="thumb-overlay" style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+          <i class="ti ${s.icon||'ti-tag'}" style="font-size:18px;color:rgba(255,255,255,.6);"></i>
+          <span style="color:rgba(255,255,255,.5);font-size:9px;font-weight:700;letter-spacing:1px;">${s.badge}</span>
+        </div>
+      </div>
+      <div class="slide-card-info">
+        <div class="slide-card-title">Slide ${i+1}: ${s.text.replace(/[^\w\s!.,]/g,'').substring(0,28)}…</div>
+        <div class="slide-card-actions">
+          <button class="sca-btn" onclick="event.stopPropagation();promoMoveSlide(${i},-1)"><i class="ti ti-arrow-up"></i></button>
+          <button class="sca-btn" onclick="event.stopPropagation();promoMoveSlide(${i},1)"><i class="ti ti-arrow-down"></i></button>
+          <button class="sca-btn del" onclick="event.stopPropagation();promoDeleteSlide(${i})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function promoSelectSlide(i) {
+  promoEditIdx = i;
+  const s = promoSlidesEditor[i];
+  document.getElementById('promo-edit-no-selection').style.display='none';
+  document.getElementById('promo-edit-form').style.display='block';
+  document.getElementById('promo-edit-idx-editor').value=i;
+  document.getElementById('pe-badge').value = s.badge||'';
+  document.getElementById('pe-text').value  = s.text||'';
+  document.getElementById('pe-icon').value  = s.icon||'ti-tag';
+  document.getElementById('pe-img-strip').innerHTML='';
+  document.getElementById('pe-img-dropzone').style.display='block';
+  if(s.img) {
+    document.getElementById('pe-img-strip').innerHTML=`<div class="img-preview-item selected"><img src="${s.img}"/><button class="ipi-del" onclick="clearPromoImg()"><i class="ti ti-x"></i></button></div>`;
+    document.getElementById('pe-img-dropzone').style.display='none';
+  }
+  promoLiveUpdate();
+  renderPromoSlideList();
+}
+
+function promoLiveUpdate() {
+  const badge = document.getElementById('pe-badge')?.value||'OFFER';
+  const text  = document.getElementById('pe-text')?.value||'';
+  const icon  = document.getElementById('pe-icon')?.value||'ti-tag';
+  document.getElementById('pprev-badge').innerHTML = `<i class="ti ${icon}" style="font-size:11px;"></i> ${badge}`;
+  document.getElementById('pprev-text').textContent = text;
+  const imgEl = document.getElementById('pprev-img');
+  const imgWrap = document.getElementById('pprev-img-wrap');
+  if(promoEditIdx>=0 && promoSlidesEditor[promoEditIdx]?.img) {
+    imgEl.src = promoSlidesEditor[promoEditIdx].img;
+    imgWrap.style.display='block';
+  } else { imgWrap.style.display='none'; }
+}
+
+function handlePromoImgUpload(input) {
+  if(!input.files||!input.files[0]) return;
+  processPromoImg(input.files[0]);
+}
+function handlePromoImgDrop(event) {
+  event.preventDefault();
+  document.getElementById('pe-img-dropzone').classList.remove('drag-over');
+  if(event.dataTransfer.files[0]) processPromoImg(event.dataTransfer.files[0]);
+}
+function processPromoImg(file) {
+  if(file.size>2*1024*1024) { showToast('Image too large (max 2MB)','error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const src = e.target.result;
+    document.getElementById('pe-img-strip').innerHTML=`<div class="img-preview-item selected"><img src="${src}"/><button class="ipi-del" onclick="clearPromoImg()"><i class="ti ti-x"></i></button></div>`;
+    document.getElementById('pe-img-dropzone').style.display='none';
+    if(promoEditIdx>=0) promoSlidesEditor[promoEditIdx].img=src;
+    promoLiveUpdate();
+    showToast('Promo image uploaded!','success');
+  };
+  reader.readAsDataURL(file);
+}
+function clearPromoImg() {
+  document.getElementById('pe-img-strip').innerHTML='';
+  document.getElementById('pe-img-dropzone').style.display='block';
+  if(promoEditIdx>=0) promoSlidesEditor[promoEditIdx].img='';
+  promoLiveUpdate();
+}
+
+function savePromoSlide() {
+  if(promoEditIdx<0) return;
+  const s = promoSlidesEditor[promoEditIdx];
+  s.badge = document.getElementById('pe-badge').value;
+  s.text  = document.getElementById('pe-text').value;
+  s.icon  = document.getElementById('pe-icon').value;
+  renderPromoSlideList();
+  addActivity(`Promo slide ${promoEditIdx+1} updated: <b>${s.badge}</b>`,'blue');
+  showToast('Promo slide saved!','success');
+}
+
+function promoDeleteSlide(i) {
+  if(promoSlidesEditor.length<=1) { showToast('Must have at least 1 promo slide.','error'); return; }
+  if(!confirm('Delete this promo slide?')) return;
+  promoSlidesEditor.splice(i,1);
+  if(promoEditIdx===i) { promoEditIdx=-1; document.getElementById('promo-edit-no-selection').style.display='block'; document.getElementById('promo-edit-form').style.display='none'; }
+  else if(promoEditIdx>i) promoEditIdx--;
+  renderPromoSlideList();
+  showToast('Promo slide deleted.','success');
+}
+
+function deletePromoSlide() {
+  if(promoEditIdx>=0) promoDeleteSlide(promoEditIdx);
+}
+
+function promoMoveSlide(i,dir) {
+  const n=i+dir;
+  if(n<0||n>=promoSlidesEditor.length) return;
+  [promoSlidesEditor[i],promoSlidesEditor[n]]=[promoSlidesEditor[n],promoSlidesEditor[i]];
+  if(promoEditIdx===i) promoEditIdx=n;
+  else if(promoEditIdx===n) promoEditIdx=i;
+  renderPromoSlideList();
+}
+
+function promoEditorAddSlide() {
+  showSection('promo-slider-editor');
+  promoSlidesEditor.push({badge:'NEW OFFER',text:'🎁 Enter your promo message here',icon:'ti-tag',img:''});
+  promoSelectSlide(promoSlidesEditor.length-1);
+  renderPromoSlideList();
+  showToast('New promo slide added!','success');
+}
+
+function savePromoSlider() {
+  addActivity(`Promo slider saved — ${promoSlidesEditor.length} slides`,'green');
+  showToast(`Promo slider saved with ${promoSlidesEditor.length} slides!`,'success');
+}
+
+// editor init handled inside showSection directly
+
+</script>
+</body>
+</html>
